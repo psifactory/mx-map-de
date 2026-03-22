@@ -2,12 +2,19 @@ from mail_sovereignty.constants import (
     AWS_KEYWORDS,
     FOREIGN_SENDER_KEYWORDS,
     GATEWAY_KEYWORDS,
+    GERMAN_ISP_ASNS,
     GOOGLE_KEYWORDS,
-    INFOMANIAK_KEYWORDS,
+    HETZNER_KEYWORDS,
+    IONOS_KEYWORDS,
+    MAILBOX_ORG_KEYWORDS,
     MICROSOFT_KEYWORDS,
+    OPEN_XCHANGE_KEYWORDS,
+    POSTEO_KEYWORDS,
     PROVIDER_KEYWORDS,
     SMTP_BANNER_KEYWORDS,
-    SWISS_ISP_ASNS,
+    STRATO_KEYWORDS,
+    TELEKOM_KEYWORDS,
+    TUTANOTA_KEYWORDS,
 )
 
 
@@ -43,10 +50,37 @@ def detect_gateway(mx_records: list[str]) -> str | None:
 
 
 def _check_spf_for_provider(spf_blob: str) -> str | None:
-    """Check an SPF blob for hyperscaler keywords, return provider or None."""
+    """Check an SPF blob for provider keywords, return provider or None."""
     for provider, keywords in PROVIDER_KEYWORDS.items():
         if any(k in spf_blob for k in keywords):
             return provider
+    return None
+
+
+def _check_mx_blob_for_provider(mx_blob: str) -> str | None:
+    """Check MX blob against all provider keywords. Return provider or None."""
+    if any(k in mx_blob for k in MICROSOFT_KEYWORDS):
+        return "microsoft"
+    if any(k in mx_blob for k in GOOGLE_KEYWORDS):
+        return "google"
+    if any(k in mx_blob for k in IONOS_KEYWORDS):
+        return "ionos"
+    if any(k in mx_blob for k in STRATO_KEYWORDS):
+        return "strato"
+    if any(k in mx_blob for k in HETZNER_KEYWORDS):
+        return "hetzner"
+    if any(k in mx_blob for k in TELEKOM_KEYWORDS):
+        return "telekom"
+    if any(k in mx_blob for k in POSTEO_KEYWORDS):
+        return "posteo"
+    if any(k in mx_blob for k in MAILBOX_ORG_KEYWORDS):
+        return "mailbox.org"
+    if any(k in mx_blob for k in TUTANOTA_KEYWORDS):
+        return "tutanota"
+    if any(k in mx_blob for k in OPEN_XCHANGE_KEYWORDS):
+        return "open-xchange"
+    if any(k in mx_blob for k in AWS_KEYWORDS):
+        return "aws"
     return None
 
 
@@ -68,25 +102,15 @@ def classify(
     """
     mx_blob = " ".join(mx_records).lower()
 
-    if any(k in mx_blob for k in MICROSOFT_KEYWORDS):
-        return "microsoft"
-    if any(k in mx_blob for k in GOOGLE_KEYWORDS):
-        return "google"
-    if any(k in mx_blob for k in INFOMANIAK_KEYWORDS):
-        return "infomaniak"
-    if any(k in mx_blob for k in AWS_KEYWORDS):
-        return "aws"
+    provider = _check_mx_blob_for_provider(mx_blob)
+    if provider:
+        return provider
 
     if mx_records and mx_cnames:
         cname_blob = " ".join(mx_cnames.values()).lower()
-        if any(k in cname_blob for k in MICROSOFT_KEYWORDS):
-            return "microsoft"
-        if any(k in cname_blob for k in GOOGLE_KEYWORDS):
-            return "google"
-        if any(k in cname_blob for k in INFOMANIAK_KEYWORDS):
-            return "infomaniak"
-        if any(k in cname_blob for k in AWS_KEYWORDS):
-            return "aws"
+        cname_provider = _check_mx_blob_for_provider(cname_blob)
+        if cname_provider:
+            return cname_provider
 
     if mx_records and detect_gateway(mx_records):
         spf_blob = (spf_record or "").lower()
@@ -95,19 +119,19 @@ def classify(
             provider = _check_spf_for_provider(resolved_spf.lower())
         if provider:
             return provider
-        # No hyperscaler in SPF — check autodiscover for backend provider
+        # No provider in SPF — check autodiscover for backend provider
         ad_provider = classify_from_autodiscover(autodiscover)
         if ad_provider:
             return ad_provider
         # Gateway relays to independent, fall through
 
     if mx_records:
-        if mx_asns and mx_asns & SWISS_ISP_ASNS.keys():
-            # Check autodiscover for hyperscaler backend behind Swiss ISP relay
+        if mx_asns and mx_asns & GERMAN_ISP_ASNS.keys():
+            # Check autodiscover for hyperscaler backend behind German ISP relay
             ad_provider = classify_from_autodiscover(autodiscover)
             if ad_provider:
                 return ad_provider
-            return "swiss-isp"
+            return "german-isp"
         # Check autodiscover for hyperscaler backend behind independent MX
         ad_provider = classify_from_autodiscover(autodiscover)
         if ad_provider:

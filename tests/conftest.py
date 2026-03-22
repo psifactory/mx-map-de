@@ -6,11 +6,11 @@ import pytest
 @pytest.fixture
 def sample_municipality():
     return {
-        "bfs": "351",
-        "name": "Bern",
-        "canton": "Bern",
-        "domain": "bern.ch",
-        "mx": ["bern-ch.mail.protection.outlook.com"],
+        "ags": "05315000",
+        "name": "Köln",
+        "state": "Nordrhein-Westfalen",
+        "domain": "stadt-koeln.de",
+        "mx": ["stadt-koeln-de.mail.protection.outlook.com"],
         "spf": "v=spf1 include:spf.protection.outlook.com -all",
         "provider": "microsoft",
     }
@@ -19,23 +19,22 @@ def sample_municipality():
 @pytest.fixture
 def sovereign_municipality():
     return {
-        "bfs": "6404",
-        "name": "Boudry",
-        "canton": "Neuchatel",
-        "domain": "ne.ch",
-        "mx": ["nemx9a.ne.ch", "ne2mx9a.ne.ch"],
-        "spf": "v=spf1 include:spf1.ne.ch include:spf.protection.outlook.com ~all",
-        "provider": "swiss-isp",
-        "gateway": "cantonal-ne",
+        "ags": "09162000",
+        "name": "München",
+        "state": "Bayern",
+        "domain": "muenchen.de",
+        "mx": ["mail.muenchen.de"],
+        "spf": "v=spf1 ip4:1.2.3.4 -all",
+        "provider": "independent",
     }
 
 
 @pytest.fixture
 def unknown_municipality():
     return {
-        "bfs": "9999",
+        "ags": "99999999",
         "name": "Testingen",
-        "canton": "Testland",
+        "state": "Testland",
         "domain": "",
         "mx": [],
         "spf": "",
@@ -48,31 +47,30 @@ def sample_data_json(tmp_path):
     data = {
         "generated": "2025-01-01T00:00:00Z",
         "total": 3,
-        "counts": {"microsoft": 1, "swiss-isp": 1, "unknown": 1},
+        "counts": {"microsoft": 1, "independent": 1, "unknown": 1},
         "municipalities": {
-            "351": {
-                "bfs": "351",
-                "name": "Bern",
-                "canton": "Bern",
-                "domain": "bern.ch",
-                "mx": ["bern-ch.mail.protection.outlook.com"],
+            "05315000": {
+                "ags": "05315000",
+                "name": "Köln",
+                "state": "Nordrhein-Westfalen",
+                "domain": "stadt-koeln.de",
+                "mx": ["stadt-koeln-de.mail.protection.outlook.com"],
                 "spf": "v=spf1 include:spf.protection.outlook.com -all",
                 "provider": "microsoft",
             },
-            "6404": {
-                "bfs": "6404",
-                "name": "Boudry",
-                "canton": "Neuchatel",
-                "domain": "ne.ch",
-                "mx": ["nemx9a.ne.ch", "ne2mx9a.ne.ch"],
-                "spf": "v=spf1 include:spf1.ne.ch include:spf.protection.outlook.com ~all",
-                "provider": "swiss-isp",
-                "gateway": "cantonal-ne",
+            "09162000": {
+                "ags": "09162000",
+                "name": "München",
+                "state": "Bayern",
+                "domain": "muenchen.de",
+                "mx": ["mail.muenchen.de"],
+                "spf": "v=spf1 ip4:1.2.3.4 -all",
+                "provider": "independent",
             },
-            "9999": {
-                "bfs": "9999",
+            "99999999": {
+                "ags": "99999999",
                 "name": "Testingen",
-                "canton": "Testland",
+                "state": "Testland",
                 "domain": "",
                 "mx": [],
                 "spf": "",

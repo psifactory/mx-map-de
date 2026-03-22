@@ -19,26 +19,8 @@ MIN_AVERAGE_SCORE = int(os.environ.get("MIN_AVERAGE_SCORE", "70"))
 MIN_HIGH_CONFIDENCE_PCT = int(os.environ.get("MIN_HIGH_CONFIDENCE_PCT", "80"))
 HIGH_CONFIDENCE_THRESHOLD = 80
 
-MANUAL_OVERRIDE_BFS = {
-    "6404",
-    "6408",
-    "6413",
-    "6416",
-    "6417",
-    "6423",
-    "6432",
-    "6433",
-    "6434",
-    "6435",
-    "6437",
-    "6451",
-    "6455",
-    "6456",
-    "6458",
-    "6487",
-    "6504",
-    "422",
-}
+# Manual override AGS numbers (to be populated as needed)
+MANUAL_OVERRIDE_AGS: set[str] = set()
 
 
 POTENTIAL_GATEWAY_THRESHOLD = 5
@@ -100,7 +82,7 @@ def score_entry(entry: dict[str, Any]) -> dict[str, Any]:
     domain = entry.get("domain", "")
     mx = entry.get("mx", [])
     spf = entry.get("spf", "")
-    bfs = entry.get("bfs", "")
+    ags = entry.get("ags", "")
 
     # Merged entries: automatically 100
     if provider == "merged":
@@ -215,7 +197,7 @@ def score_entry(entry: dict[str, Any]) -> dict[str, Any]:
             flags.append(f"autodiscover_suggests:{ad_provider}")
 
     # Manual override (+5)
-    if bfs in MANUAL_OVERRIDE_BFS:
+    if ags in MANUAL_OVERRIDE_AGS:
         score += 5
         flags.append("manual_override")
 
@@ -282,12 +264,12 @@ def print_report(scored_entries: list[dict[str, Any]]) -> None:
     lowest = sorted(non_merged, key=lambda x: x["score"])[:15]
 
     print("\n  Lowest-confidence entries (for review):")
-    print(f"    {'BFS':>5}  {'Score':>5}  {'Provider':<12} {'Name':<30} Flags")
-    print(f"    {'-' * 5}  {'-' * 5}  {'-' * 12} {'-' * 30} {'-' * 20}")
+    print(f"    {'AGS':>8}  {'Score':>5}  {'Provider':<12} {'Name':<30} Flags")
+    print(f"    {'-' * 8}  {'-' * 5}  {'-' * 12} {'-' * 30} {'-' * 20}")
     for e in lowest:
         flags_str = ", ".join(e["flags"])
         print(
-            f"    {e['bfs']:>5}  {e['score']:>5}  {e['provider']:<12} "
+            f"    {e['ags']:>8}  {e['score']:>5}  {e['provider']:<12} "
             f"{e['name']:<30} {flags_str}"
         )
 
@@ -296,7 +278,7 @@ def print_report(scored_entries: list[dict[str, Any]]) -> None:
         print(f"\n  MX/SPF mismatches ({len(mismatched)}):")
         for e in sorted(mismatched, key=lambda x: x["score"]):
             print(
-                f"    {e['bfs']:>5}  {e['name']:<30} "
+                f"    {e['ags']:>8}  {e['name']:<30} "
                 f"mx_provider={classify_from_mx(e.get('mx_raw', []))} "
                 f"spf_provider={classify_from_spf(e.get('spf_raw', ''))}"
             )
@@ -322,11 +304,11 @@ def run(data_path: Path, output_dir: Path, quality_gate: bool = False) -> bool:
     municipalities = data["municipalities"]
     scored = []
 
-    for bfs, entry in municipalities.items():
+    for ags, entry in municipalities.items():
         result = score_entry(entry)
         scored.append(
             {
-                "bfs": entry["bfs"],
+                "ags": entry.get("ags", ags),
                 "name": entry["name"],
                 "provider": entry["provider"],
                 "domain": entry.get("domain", ""),
@@ -355,7 +337,7 @@ def run(data_path: Path, output_dir: Path, quality_gate: bool = False) -> bool:
         "high_confidence_pct": high_confidence_pct,
         "quality_passed": quality_passed,
         "entries": {
-            e["bfs"]: {
+            e["ags"]: {
                 "name": e["name"],
                 "provider": e["provider"],
                 "domain": e["domain"],
@@ -376,11 +358,11 @@ def run(data_path: Path, output_dir: Path, quality_gate: bool = False) -> bool:
     sorted_entries = sorted(scored, key=lambda e: (e["score"], e["name"]))
     with open(csv_path, "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["bfs", "name", "provider", "domain", "confidence", "flags"])
+        writer.writerow(["ags", "name", "provider", "domain", "confidence", "flags"])
         for e in sorted_entries:
             writer.writerow(
                 [
-                    e["bfs"],
+                    e["ags"],
                     e["name"],
                     e["provider"],
                     e["domain"],

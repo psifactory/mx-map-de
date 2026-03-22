@@ -2,11 +2,14 @@ from mail_sovereignty.constants import (
     MICROSOFT_KEYWORDS,
     GOOGLE_KEYWORDS,
     AWS_KEYWORDS,
-    INFOMANIAK_KEYWORDS,
+    IONOS_KEYWORDS,
+    STRATO_KEYWORDS,
+    HETZNER_KEYWORDS,
+    TELEKOM_KEYWORDS,
     PROVIDER_KEYWORDS,
     FOREIGN_SENDER_KEYWORDS,
     SKIP_DOMAINS,
-    SWISS_ISP_ASNS,
+    GERMAN_ISP_ASNS,
 )
 
 
@@ -14,11 +17,18 @@ def test_keyword_lists_non_empty():
     assert MICROSOFT_KEYWORDS
     assert GOOGLE_KEYWORDS
     assert AWS_KEYWORDS
-    assert INFOMANIAK_KEYWORDS
+    assert IONOS_KEYWORDS
+    assert STRATO_KEYWORDS
+    assert HETZNER_KEYWORDS
+    assert TELEKOM_KEYWORDS
 
 
 def test_provider_keywords_has_all_providers():
-    assert set(PROVIDER_KEYWORDS.keys()) == {"microsoft", "google", "aws", "infomaniak"}
+    expected = {
+        "microsoft", "google", "aws", "ionos", "strato", "hetzner",
+        "telekom", "posteo", "mailbox.org", "tutanota", "open-xchange",
+    }
+    assert expected == set(PROVIDER_KEYWORDS.keys())
 
 
 def test_foreign_sender_keywords_non_empty():
@@ -35,16 +45,17 @@ def test_foreign_sender_keywords_non_empty():
 
 def test_skip_domains_contains_expected():
     assert "example.com" in SKIP_DOMAINS
+    assert "example.de" in SKIP_DOMAINS
     assert "sentry.io" in SKIP_DOMAINS
     assert "schema.org" in SKIP_DOMAINS
 
 
-def test_swiss_isp_asns_contains_key_providers():
-    assert 3303 in SWISS_ISP_ASNS  # Swisscom
-    assert 559 in SWISS_ISP_ASNS  # SWITCH
-    assert 29691 in SWISS_ISP_ASNS  # Hostpoint
-    assert 15600 in SWISS_ISP_ASNS  # Quickline
+def test_german_isp_asns_contains_key_providers():
+    assert 3320 in GERMAN_ISP_ASNS  # Deutsche Telekom
+    assert 8560 in GERMAN_ISP_ASNS  # IONOS
+    assert 24940 in GERMAN_ISP_ASNS  # Hetzner
+    assert 6724 in GERMAN_ISP_ASNS  # Strato
 
 
-def test_swiss_isp_asns_minimum_count():
-    assert len(SWISS_ISP_ASNS) >= 13
+def test_german_isp_asns_minimum_count():
+    assert len(GERMAN_ISP_ASNS) >= 10

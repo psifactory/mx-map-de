@@ -45,12 +45,12 @@ class TestDecryptTypo3:
 
 class TestExtractEmailDomains:
     def test_plain_email(self):
-        html = "Contact us at info@gemeinde.ch for more info."
-        assert "gemeinde.ch" in extract_email_domains(html)
+        html = "Contact us at info@gemeinde.de for more info."
+        assert "gemeinde.de" in extract_email_domains(html)
 
     def test_mailto_link(self):
-        html = '<a href="mailto:contact@town.ch">Email</a>'
-        assert "town.ch" in extract_email_domains(html)
+        html = '<a href="mailto:contact@town.de">Email</a>'
+        assert "town.de" in extract_email_domains(html)
 
     def test_typo3_obfuscated(self):
         html = """linkTo_UnCryptMailto('kygjrm8yYz,af')"""
@@ -64,10 +64,10 @@ class TestExtractEmailDomains:
         assert "sentry.io" not in domains
 
     def test_multiple_sources_combined(self):
-        html = 'info@town.ch <a href="mailto:admin@city.ch">x</a>'
+        html = 'info@town.de <a href="mailto:admin@city.de">x</a>'
         domains = extract_email_domains(html)
-        assert "town.ch" in domains
-        assert "city.ch" in domains
+        assert "town.de" in domains
+        assert "city.de" in domains
 
     def test_no_emails(self):
         html = "<html><body>No contact here</body></html>"
@@ -79,24 +79,24 @@ class TestExtractEmailDomains:
 
 class TestBuildUrls:
     def test_bare_domain(self):
-        urls = build_urls("example.ch")
-        assert "https://www.example.ch/" in urls
-        assert "https://example.ch/" in urls
+        urls = build_urls("example.de")
+        assert "https://www.example.de/" in urls
+        assert "https://example.de/" in urls
         assert any("/kontakt" in u for u in urls)
 
     def test_www_prefix(self):
-        urls = build_urls("www.example.ch")
-        assert "https://www.example.ch/" in urls
-        assert "https://example.ch/" in urls
+        urls = build_urls("www.example.de")
+        assert "https://www.example.de/" in urls
+        assert "https://example.de/" in urls
 
     def test_https_prefix_stripped(self):
-        urls = build_urls("https://example.ch")
-        assert "https://www.example.ch/" in urls
+        urls = build_urls("https://example.de")
+        assert "https://www.example.de/" in urls
 
     def test_includes_contact_paths(self):
-        urls = build_urls("example.ch")
-        assert any("/contact" in u for u in urls)
+        urls = build_urls("example.de")
         assert any("/kontakt" in u for u in urls)
+        assert any("/impressum" in u for u in urls)
 
 
 # ── MANUAL_OVERRIDES ─────────────────────────────────────────────────
@@ -104,16 +104,12 @@ class TestBuildUrls:
 
 class TestManualOverrides:
     def test_all_entries_have_required_keys(self):
-        for bfs, entry in MANUAL_OVERRIDES.items():
-            assert "domain" in entry, f"BFS {bfs} missing 'domain'"
-            assert "provider" in entry, f"BFS {bfs} missing 'provider'"
+        for ags, entry in MANUAL_OVERRIDES.items():
+            assert "domain" in entry, f"AGS {ags} missing 'domain'"
+            assert "provider" in entry, f"AGS {ags} missing 'provider'"
 
-    def test_valid_providers(self):
-        valid = {"independent", "infomaniak", "microsoft", "swiss-isp"}
-        for bfs, entry in MANUAL_OVERRIDES.items():
-            assert entry["provider"] in valid, (
-                f"BFS {bfs}: unexpected provider {entry['provider']}"
-            )
+    def test_overrides_empty(self):
+        assert len(MANUAL_OVERRIDES) == 0
 
 
 # ── Async functions ──────────────────────────────────────────────────
@@ -127,18 +123,18 @@ class TestScrapeEmailDomains:
     async def test_with_emails_found(self):
         class FakeResponse:
             status_code = 200
-            text = "Contact us at info@gemeinde.ch"
+            text = "Contact us at info@gemeinde.de"
 
         client = AsyncMock()
         client.get = AsyncMock(return_value=FakeResponse())
 
-        result = await scrape_email_domains(client, "gemeinde.ch")
-        assert "gemeinde.ch" in result
+        result = await scrape_email_domains(client, "gemeinde.de")
+        assert "gemeinde.de" in result
 
 
 class TestProcessUnknown:
     async def test_no_domain_returns_unchanged(self):
-        m = {"bfs": "999", "name": "Test", "domain": "", "provider": "unknown"}
+        m = {"ags": "99999999", "name": "Test", "domain": "", "provider": "unknown"}
         sem = asyncio.Semaphore(10)
         client = AsyncMock()
 
@@ -146,12 +142,12 @@ class TestProcessUnknown:
         assert result["provider"] == "unknown"
 
     async def test_resolves_via_email_scraping(self):
-        m = {"bfs": "999", "name": "Test", "domain": "test.ch", "provider": "unknown"}
+        m = {"ags": "99999999", "name": "Test", "domain": "test.de", "provider": "unknown"}
         sem = asyncio.Semaphore(10)
 
         class FakeResponse:
             status_code = 200
-            text = "Contact us at info@test.ch"
+            text = "Contact us at info@test.de"
 
         client = AsyncMock()
         client.get = AsyncMock(return_value=FakeResponse())
@@ -160,7 +156,7 @@ class TestProcessUnknown:
             patch(
                 "mail_sovereignty.postprocess.lookup_mx",
                 new_callable=AsyncMock,
-                return_value=["mail.test.ch"],
+                return_value=["mail.test.de"],
             ),
             patch(
                 "mail_sovereignty.postprocess.lookup_spf",
@@ -178,7 +174,7 @@ class TestProcessUnknown:
         assert result["provider"] == "independent"
 
     async def test_no_email_domains_found(self):
-        m = {"bfs": "999", "name": "Test", "domain": "test.ch", "provider": "unknown"}
+        m = {"ags": "99999999", "name": "Test", "domain": "test.de", "provider": "unknown"}
         sem = asyncio.Semaphore(10)
 
         class FakeResponse:
@@ -201,14 +197,14 @@ class TestScrapeEmailDomainsNoEmails:
         client = AsyncMock()
         client.get = AsyncMock(return_value=FakeResponse())
 
-        result = await scrape_email_domains(client, "test.ch")
+        result = await scrape_email_domains(client, "test.de")
         assert result == set()
 
     async def test_exception_handled(self):
         client = AsyncMock()
         client.get = AsyncMock(side_effect=Exception("connection error"))
 
-        result = await scrape_email_domains(client, "test.ch")
+        result = await scrape_email_domains(client, "test.de")
         assert result == set()
 
 
@@ -220,10 +216,10 @@ class TestDnsRetryStep:
             "counts": {"unknown": 1},
             "municipalities": {
                 "1234": {
-                    "bfs": "1234",
-                    "name": "Gampelen",
-                    "canton": "Bern",
-                    "domain": "gampelen.ch",
+                    "ags": "1234",
+                    "name": "Testingen",
+                    "state": "Niedersachsen",
+                    "domain": "testingen.de",
                     "mx": [],
                     "spf": "",
                     "provider": "unknown",
@@ -237,7 +233,7 @@ class TestDnsRetryStep:
             patch(
                 "mail_sovereignty.postprocess.lookup_mx",
                 new_callable=AsyncMock,
-                return_value=["gampelen-ch.mail.protection.outlook.com"],
+                return_value=["testingen-de.mail.protection.outlook.com"],
             ),
             patch(
                 "mail_sovereignty.postprocess.lookup_spf",
@@ -262,9 +258,9 @@ class TestDnsRetryStep:
             "counts": {"unknown": 1},
             "municipalities": {
                 "9999": {
-                    "bfs": "9999",
+                    "ags": "9999",
                     "name": "NoDomain",
-                    "canton": "Test",
+                    "state": "Test",
                     "domain": "",
                     "mx": [],
                     "spf": "",
@@ -289,11 +285,11 @@ class TestSmtpBannerStep:
             "counts": {"independent": 1},
             "municipalities": {
                 "1000": {
-                    "bfs": "1000",
+                    "ags": "1000",
                     "name": "SmtpTown",
-                    "canton": "Test",
-                    "domain": "smtptown.ch",
-                    "mx": ["mail.smtptown.ch"],
+                    "state": "Test",
+                    "domain": "smtptown.de",
+                    "mx": ["mail.smtptown.de"],
                     "spf": "",
                     "provider": "independent",
                 },
@@ -323,11 +319,11 @@ class TestSmtpBannerStep:
             "counts": {"independent": 1},
             "municipalities": {
                 "1001": {
-                    "bfs": "1001",
+                    "ags": "1001",
                     "name": "PostfixTown",
-                    "canton": "Test",
-                    "domain": "postfixtown.ch",
-                    "mx": ["mail.postfixtown.ch"],
+                    "state": "Test",
+                    "domain": "postfixtown.de",
+                    "mx": ["mail.postfixtown.de"],
                     "spf": "",
                     "provider": "independent",
                 },
@@ -340,8 +336,8 @@ class TestSmtpBannerStep:
             "mail_sovereignty.postprocess.fetch_smtp_banner",
             new_callable=AsyncMock,
             return_value={
-                "banner": "220 mail.postfixtown.ch ESMTP Postfix",
-                "ehlo": "250 mail.postfixtown.ch",
+                "banner": "220 mail.postfixtown.de ESMTP Postfix",
+                "ehlo": "250 mail.postfixtown.de",
             },
         ):
             await run(path)
@@ -357,10 +353,10 @@ class TestSmtpBannerStep:
             "counts": {"microsoft": 1},
             "municipalities": {
                 "1002": {
-                    "bfs": "1002",
+                    "ags": "1002",
                     "name": "AlreadyKnown",
-                    "canton": "Test",
-                    "domain": "known.ch",
+                    "state": "Test",
+                    "domain": "known.de",
                     "mx": ["mail.protection.outlook.com"],
                     "spf": "v=spf1 include:spf.protection.outlook.com -all",
                     "provider": "microsoft",
@@ -384,20 +380,20 @@ class TestSmtpBannerStep:
             "counts": {"independent": 2},
             "municipalities": {
                 "2000": {
-                    "bfs": "2000",
+                    "ags": "2000",
                     "name": "Town1",
-                    "canton": "Test",
-                    "domain": "town1.ch",
-                    "mx": ["shared-mx.example.ch"],
+                    "state": "Test",
+                    "domain": "town1.de",
+                    "mx": ["shared-mx.example.de"],
                     "spf": "",
                     "provider": "independent",
                 },
                 "2001": {
-                    "bfs": "2001",
+                    "ags": "2001",
                     "name": "Town2",
-                    "canton": "Test",
-                    "domain": "town2.ch",
-                    "mx": ["shared-mx.example.ch"],
+                    "state": "Test",
+                    "domain": "town2.de",
+                    "mx": ["shared-mx.example.de"],
                     "spf": "",
                     "provider": "independent",
                 },
@@ -429,11 +425,11 @@ class TestSmtpBannerStep:
             "counts": {"independent": 1},
             "municipalities": {
                 "3000": {
-                    "bfs": "3000",
+                    "ags": "3000",
                     "name": "NoConnect",
-                    "canton": "Test",
-                    "domain": "noconnect.ch",
-                    "mx": ["mail.noconnect.ch"],
+                    "state": "Test",
+                    "domain": "noconnect.de",
+                    "mx": ["mail.noconnect.de"],
                     "spf": "",
                     "provider": "independent",
                 },
@@ -455,27 +451,5 @@ class TestSmtpBannerStep:
 
 
 class TestPostprocessRun:
-    async def test_applies_manual_overrides(self, tmp_path):
-        data = {
-            "generated": "2025-01-01",
-            "total": 1,
-            "counts": {"unknown": 1},
-            "municipalities": {
-                "6404": {
-                    "bfs": "6404",
-                    "name": "Boudry",
-                    "canton": "Neuchatel",
-                    "domain": "",
-                    "mx": [],
-                    "spf": "",
-                    "provider": "unknown",
-                },
-            },
-        }
-        path = tmp_path / "data.json"
-        path.write_text(json.dumps(data))
-
-        await run(path)
-
-        result = json.loads(path.read_text())
-        assert result["municipalities"]["6404"]["provider"] == "swiss-isp"
+    async def test_manual_overrides_empty(self):
+        assert len(MANUAL_OVERRIDES) == 0

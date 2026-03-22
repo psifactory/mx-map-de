@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -15,23 +15,22 @@
 <link rel="dns-prefetch" href="https://b.basemaps.cartocdn.com">
 <link rel="dns-prefetch" href="https://c.basemaps.cartocdn.com">
 <link rel="dns-prefetch" href="https://d.basemaps.cartocdn.com">
-<title>MXmap — Email Providers of Swiss Municipalities</title>
-<meta name="description" content="Interactive map showing the email providers of all ~2,100 Swiss municipalities, based on DNS analysis of MX and SPF records.">
-<meta name="keywords" content="Switzerland, municipalities, email, sovereignty, CLOUD Act, MX records, SPF, DNS, Microsoft 365, Google Workspace, digital sovereignty, data protection">
-<meta name="author" content="David Huser">
+<title>MX-Map — E-Mail-Provider deutscher Gemeinden</title>
+<meta name="description" content="Interaktive Karte der E-Mail-Provider aller ~10.800 deutschen Gemeinden, basierend auf DNS-Analyse von MX- und SPF-Records.">
+<meta name="keywords" content="Deutschland, Gemeinden, E-Mail, Souveränität, CLOUD Act, MX Records, SPF, DNS, Microsoft 365, Google Workspace, digitale Souveränität, Datenschutz">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://mxmap.ch/">
+<link rel="canonical" href="https://mx-map.de/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="MXmap — Email Providers of Swiss Municipalities">
-<meta property="og:description" content="Interactive map showing where Swiss municipalities host their official email. DNS analysis of all ~2,100 municipalities, color-coded by provider.">
-<meta property="og:url" content="https://mxmap.ch/">
-<meta property="og:locale" content="en_CH">
-<meta property="og:site_name" content="MXmap">
-<meta property="og:image" content="https://mxmap.ch/og-image.jpg">
+<meta property="og:title" content="MX-Map — E-Mail-Provider deutscher Gemeinden">
+<meta property="og:description" content="Interaktive Karte: Wo hosten deutsche Gemeinden ihre offizielle E-Mail? DNS-Analyse aller ~10.800 Gemeinden, farblich nach Provider.">
+<meta property="og:url" content="https://mx-map.de/">
+<meta property="og:locale" content="de_DE">
+<meta property="og:site_name" content="MX-Map">
+<meta property="og:image" content="https://mx-map.de/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MXmap — Email Providers of Swiss Municipalities">
-<meta name="twitter:description" content="Interactive map showing where Swiss municipalities host their official email. DNS analysis of all ~2,100 municipalities.">
-<meta name="twitter:image" content="https://mxmap.ch/og-image.jpg">
+<meta name="twitter:title" content="MX-Map — E-Mail-Provider deutscher Gemeinden">
+<meta name="twitter:description" content="Interaktive Karte: Wo hosten deutsche Gemeinden ihre offizielle E-Mail? DNS-Analyse aller ~10.800 Gemeinden.">
+<meta name="twitter:image" content="https://mx-map.de/og-image.jpg">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='7' width='28' height='18' rx='2' fill='%231a1a2e'/%3E%3Cpath d='M2 9l14 9 14-9' fill='none' stroke='%2316a34a' stroke-width='2'/%3E%3C/svg%3E">
 <link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"></noscript>
@@ -123,7 +122,7 @@
     font-size: 10px; font-weight: 600; line-height: 1.6;
   }
   .cat-badge.hyperscaler { background: #fde8e8; color: #E83838; }
-  .cat-badge.swiss { background: #e0f5f1; color: #10B898; }
+  .cat-badge.german { background: #e0f5f1; color: #10B898; }
   .cat-badge.foreign { background: #fef3c7; color: #b45309; }
   .cat-badge.unknown { background: #f3f4f6; color: #6b7280; }
   .legend-group { margin-top: 8px; }
@@ -134,44 +133,44 @@
 <body>
 <header id="header">
   <div class="header-left">
-    <h1 class="brand">MXmap</h1>
-    <span class="beta-badge" title="Beta status, this website may contain errors">beta</span>
+    <h1 class="brand">MX-Map</h1>
+    <span class="beta-badge" title="Beta-Status, diese Webseite kann Fehler enthalten">beta</span>
     <span class="separator">|</span>
-    <span class="tagline">Email Providers of Swiss Municipalities</span>
+    <span class="tagline">E-Mail-Provider deutscher Gemeinden</span>
   </div>
   <div class="header-right">
     <a href="/impressum.html" class="header-link">Impressum</a>
     <a href="/datenschutz.html" class="header-link">Datenschutz</a>
-    <button class="toggle-info" id="toggle-info" aria-expanded="true" aria-controls="info-bar">About &#9652;</button>
+    <button class="toggle-info" id="toggle-info" aria-expanded="true" aria-controls="info-bar">Info &#9652;</button>
   </div>
 </header>
-<section id="info-bar" aria-label="About this project">
+<section id="info-bar" aria-label="Informationen zum Projekt">
 <script>if(window.innerWidth<=600)document.getElementById('info-bar').classList.add('collapsed');</script>
-  <h2 class="info-title">Email Providers of Swiss Municipalities</h2>
+  <h2 class="info-title">E-Mail-Provider deutscher Gemeinden</h2>
   <div class="info-grid">
     <div class="info-card">
-      <h3>What is this?</h3>
-      <p>A map of all ~2,100 Swiss municipalities showing which provider handles their official email — grouped by jurisdiction — based on public DNS records.</p>
+      <h3>Was ist das?</h3>
+      <p>Eine Karte aller ~10.800 deutschen Gemeinden, die zeigt, welcher Anbieter die offizielle E-Mail verarbeitet &mdash; gruppiert nach Jurisdiktion &mdash; basierend auf öffentlichen DNS-Records.</p>
     </div>
     <div class="info-card">
-      <h3>Context</h3>
-      <p>Digital sovereignty: US-based providers are subject to the US CLOUD Act, which allows US authorities to request stored data, regardless of where it is physically hosted. This map makes the current provider landscape visible.</p>
+      <h3>Kontext</h3>
+      <p>Digitale Souveränität: US-basierte Anbieter unterliegen dem US CLOUD Act, der US-Behörden den Zugriff auf gespeicherte Daten ermöglicht, unabhängig vom Speicherort. Diese Karte macht die aktuelle Anbieterlandschaft sichtbar.</p>
     </div>
     <div class="info-card">
-      <h3>How does it work?</h3>
-      <p>Each municipality's official domain is checked via public DNS records (MX + SPF) and classified by provider type.</p>
-      <p style="font-size:12px;color:#777;margin-top:6px;">Disclaimer: DNS records indicate mail routing and authorized senders, not necessarily where data is stored.</p>
+      <h3>Wie funktioniert es?</h3>
+      <p>Die offizielle Domain jeder Gemeinde wird über öffentliche DNS-Records (MX + SPF) geprüft und nach Anbietertyp klassifiziert.</p>
+      <p style="font-size:12px;color:#777;margin-top:6px;">Hinweis: DNS-Records zeigen Mail-Routing und autorisierte Absender, nicht unbedingt den Speicherort der Daten.</p>
     </div>
     <div class="info-card">
-      <h3>Open source &amp; open data</h3>
-      <p>The code and data are on <a href="https://github.com/davidhuser/mxmap" target="_blank">GitHub</a>.<br>
-      If you have noticed an error, please <a href="https://github.com/davidhuser/mxmap/issues" target="_blank">submit an issue</a>.</p>
+      <h3>Open Source &amp; Open Data</h3>
+      <p>Code und Daten sind auf <a href="https://github.com/sebbo/mx-map-de" target="_blank">GitHub</a>.<br>
+      Fehler gefunden? Bitte <a href="https://github.com/sebbo/mx-map-de/issues" target="_blank">Issue erstellen</a>.</p>
       <p id="generated"></p>
     </div>
   </div>
 </section>
-<main id="map" role="application" aria-label="Interactive map of Swiss municipality email providers">
-  <div id="map-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1000;background:rgba(255,255,255,0.85);font-size:15px;color:#555;">Loading map data&hellip;</div>
+<main id="map" role="application" aria-label="Interaktive Karte der E-Mail-Provider deutscher Gemeinden">
+  <div id="map-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1000;background:rgba(255,255,255,0.85);font-size:15px;color:#555;">Kartendaten werden geladen&hellip;</div>
 </main>
 
 <script>
@@ -180,23 +179,37 @@ if (!CSS.supports('height', '100dvh')) {
   document.body.style.height = window.innerHeight + 'px';
 }
 const COLORS = {
-  microsoft:      '#E83838',  // punchy vivid red — US cloud
-  google:         '#FFAB96',  // bright warm peach — US cloud
-  aws:            '#FF7A5C',  // bright hot coral — US cloud
-  infomaniak:     '#78FFD6',  // vivid bright mint — Swiss provider
-  'swiss-isp':    '#2EDBA8',  // neon-ish seafoam — Swiss ISP
-  'independent':  '#10B898',  // vivid bright teal — independent
-  unknown:        '#BFBFBF'   // neutral mid-gray with hatching
+  microsoft:      '#E83838',
+  google:         '#FFAB96',
+  aws:            '#FF7A5C',
+  ionos:          '#78FFD6',
+  strato:         '#2EDBA8',
+  hetzner:        '#10B898',
+  telekom:        '#0D9373',
+  posteo:         '#4ECDC4',
+  'mailbox.org':  '#36B5A0',
+  tutanota:       '#88D8B0',
+  'open-xchange': '#6CC4A1',
+  'german-isp':   '#2DB87F',
+  'independent':  '#1A9E6E',
+  unknown:        '#BFBFBF'
 };
 
 const LABELS = {
   microsoft:      'Microsoft 365',
   google:         'Google Workspace',
   aws:            'Amazon Web Services',
-  infomaniak:     'Infomaniak',
-  'swiss-isp':    'Swiss ISP',
-  'independent':  'Independent',
-  unknown:        'Unknown'
+  ionos:          'IONOS / 1&1',
+  strato:         'Strato',
+  hetzner:        'Hetzner',
+  telekom:        'Telekom',
+  posteo:         'Posteo',
+  'mailbox.org':  'mailbox.org',
+  tutanota:       'Tuta (Tutanota)',
+  'open-xchange': 'Open-Xchange',
+  'german-isp':   'Deutscher ISP',
+  'independent':  'Eigenständig',
+  unknown:        'Unbekannt'
 };
 
 function escapeHtml(str) {
@@ -207,17 +220,30 @@ function escapeHtml(str) {
 
 function classifyHost(host) {
   const h = host.toLowerCase();
-  // Hyperscalers
   if (['mail.protection.outlook.com','outlook.com','microsoft','office365','onmicrosoft','spf.protection.outlook.com','sharepointonline'].some(k => h.includes(k)))
     return { name: 'Microsoft', category: 'hyperscaler' };
   if (['google','googlemail','gmail','aspmx.l.google.com','_spf.google.com'].some(k => h.includes(k)))
     return { name: 'Google', category: 'hyperscaler' };
   if (['amazonaws','amazonses','awsdns'].some(k => h.includes(k)))
     return { name: 'AWS', category: 'hyperscaler' };
-  // Swiss (explicit)
-  if (['infomaniak','mxpool.infomaniak'].some(k => h.includes(k)))
-    return { name: 'Infomaniak', category: 'swiss' };
-  // Foreign senders
+  if (['ionos','1and1','schlund','kundenserver.de','perfora.net','ui-dns'].some(k => h.includes(k)))
+    return { name: 'IONOS', category: 'german' };
+  if (h.includes('strato'))
+    return { name: 'Strato', category: 'german' };
+  if (['hetzner','your-server.de'].some(k => h.includes(k)))
+    return { name: 'Hetzner', category: 'german' };
+  if (['t-online','telekom'].some(k => h.includes(k)))
+    return { name: 'Telekom', category: 'german' };
+  if (h.includes('posteo'))
+    return { name: 'Posteo', category: 'german' };
+  if (h.includes('mailbox.org'))
+    return { name: 'mailbox.org', category: 'german' };
+  if (['tutanota','tutamail','tuta.io'].some(k => h.includes(k)))
+    return { name: 'Tutanota', category: 'german' };
+  if (h.includes('open-xchange'))
+    return { name: 'Open-Xchange', category: 'german' };
+  if (h.includes('retarus'))
+    return { name: 'Retarus', category: 'german' };
   if (['mandrillapp.com','mandrill','mcsv.net'].some(k => h.includes(k)))
     return { name: 'Mailchimp', category: 'foreign' };
   if (h.includes('sendgrid'))
@@ -228,52 +254,14 @@ function classifyHost(host) {
     return { name: 'Mailgun', category: 'foreign' };
   if (['sendinblue','brevo'].some(k => h.includes(k)))
     return { name: 'Brevo', category: 'foreign' };
-  if (h.includes('mailchannels'))
-    return { name: 'MailChannels', category: 'foreign' };
-  if (h.includes('smtp2go'))
-    return { name: 'SMTP2GO', category: 'foreign' };
-  if (h.includes('nl2go'))
-    return { name: 'Newsletter2Go', category: 'foreign' };
-  if (h.includes('hubspotemail'))
-    return { name: 'HubSpot', category: 'foreign' };
-  if (h.includes('knowbe4'))
-    return { name: 'KnowBe4', category: 'foreign' };
-  if (['sophos','sophosxl'].some(k => h.includes(k)))
-    return { name: 'Sophos', category: 'foreign' };
-  if (h.includes('trendmicro'))
-    return { name: 'Trend Micro', category: 'foreign' };
   if (['hornetsecurity','hornetdmarc'].some(k => h.includes(k)))
     return { name: 'Hornetsecurity', category: 'foreign' };
   if (h.includes('barracudanetworks'))
     return { name: 'Barracuda', category: 'foreign' };
-  if (h.includes('mlsend'))
-    return { name: 'MailerLite', category: 'foreign' };
-  if (h.includes('createsend'))
-    return { name: 'Campaign Monitor', category: 'foreign' };
-  if (h.includes('exclaimer'))
-    return { name: 'Exclaimer', category: 'foreign' };
-  if (h.includes('turbo-smtp'))
-    return { name: 'turboSMTP', category: 'foreign' };
-  if (h.includes('letsignit'))
-    return { name: 'Letsignit', category: 'foreign' };
-  if (h.includes('codetwo'))
-    return { name: 'CodeTwo', category: 'foreign' };
-  if (h.includes('freshservice'))
-    return { name: 'Freshservice', category: 'foreign' };
-  // Known Swiss providers with non-.ch TLDs
-  const SWISS_DOMAINS = [
-    'abxsec.com','swiss-egov.cloud','sui-inter.net','ch-dns.net','cyon.net',
-    'seppmail.cloud','swisscom.com','privasphere.com','tinext.com','cloudrexx.com',
-    'mailomat.cloud','comp-sys.net','engadin.cloud','ti-informatique.com',
-    'assolo.net','moresi.com'
-  ];
-  if (SWISS_DOMAINS.some(d => h.endsWith(d) || h.endsWith('.' + d)))
-    return { name: h.replace(/^_/, '').split('.').slice(-2).join('.'), category: 'swiss' };
-  // TLD-based fallback
   const parts = host.replace(/^_/, '').split('.');
   const name = parts.length >= 2 ? parts.slice(-2).join('.') : host;
-  if (h.endsWith('.ch') || h.endsWith('.swiss'))
-    return { name, category: 'swiss' };
+  if (h.endsWith('.de'))
+    return { name, category: 'german' };
   return { name, category: 'unknown' };
 }
 
@@ -300,9 +288,9 @@ function renderTable(hosts) {
 }
 
 const map = L.map('map', {
-  center: [46.8, 8.2],
-  zoom: 8,
-  minZoom: 7,
+  center: [51.1657, 10.4515],
+  zoom: 6,
+  minZoom: 5,
   maxZoom: 14,
   renderer: L.canvas()
 });
@@ -332,7 +320,7 @@ function toggleInfo() {
   const btn = document.getElementById('toggle-info');
   bar.classList.toggle('collapsed');
   const collapsed = bar.classList.contains('collapsed');
-  btn.innerHTML = collapsed ? 'About \u25be' : 'About \u25b4';
+  btn.innerHTML = collapsed ? 'Info \u25be' : 'Info \u25b4';
   btn.setAttribute('aria-expanded', String(!collapsed));
 }
 
@@ -341,11 +329,10 @@ document.getElementById('toggle-info').addEventListener('click', function () {
   map.invalidateSize({ animate: false });
 });
 
-// Collapse info bar by default on mobile
 if (window.innerWidth <= 600) {
   document.getElementById('info-bar').classList.add('collapsed');
   const btn = document.getElementById('toggle-info');
-  btn.innerHTML = 'About \u25be';
+  btn.innerHTML = 'Info \u25be';
   btn.setAttribute('aria-expanded', 'false');
 }
 
@@ -354,7 +341,7 @@ function toggleLegend() {
   const btn = legend.querySelector('.legend-toggle');
   legend.classList.toggle('legend-collapsed');
   const collapsed = legend.classList.contains('legend-collapsed');
-  btn.textContent = collapsed ? 'Legend \u25B8' : '\u2715';
+  btn.textContent = collapsed ? 'Legende \u25B8' : '\u2715';
   btn.setAttribute('aria-expanded', String(!collapsed));
 }
 
@@ -377,35 +364,32 @@ function legendGroupHtml(label, keys, counts) {
 
 async function loadData() {
   const [topoRes, dataRes] = await Promise.all([
-    fetch('https://cdn.jsdelivr.net/npm/swiss-maps@4.7.0/2026/ch-combined.json'),
+    fetch('https://raw.githubusercontent.com/jgehrcke/germany-administrative-boundaries/master/topojson/vg250_gem.topo.json'),
     fetch('data.json')
   ]);
 
   const topo = await topoRes.json();
   const dnsData = await dataRes.json();
 
-  // Build lookup by BFS number
   const muni = dnsData.municipalities;
 
-  // Show dataset info
   if (dnsData.generated) {
     const date = new Date(dnsData.generated);
     document.getElementById('generated').textContent =
-      'Updated ' + date.toLocaleString('de-CH', { dateStyle: 'medium', timeStyle: 'short' });
+      'Aktualisiert ' + date.toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' });
   }
 
-  // Legend with counts
   const isMobile = window.innerWidth <= 600;
   const legend = L.control({ position: isMobile ? 'topright' : 'bottomright' });
   legend.onAdd = function () {
     const div = L.DomUtil.create('div', 'legend');
     if (isMobile) div.classList.add('legend-collapsed');
     div.innerHTML =
-      '<button class="legend-toggle" aria-label="Toggle legend" aria-expanded="' + (!isMobile) + '">' + (isMobile ? 'Legend \u25B8' : '') + '</button>' +
+      '<button class="legend-toggle" aria-label="Legende umschalten" aria-expanded="' + (!isMobile) + '">' + (isMobile ? 'Legende \u25B8' : '') + '</button>' +
       '<div class="legend-content">' +
-      '<strong>Email Provider</strong>' +
-      legendGroupHtml('US-based', ['microsoft', 'aws', 'google'], dnsData.counts) +
-      legendGroupHtml('Swiss-based', ['independent', 'swiss-isp', 'infomaniak'], dnsData.counts) +
+      '<strong>E-Mail-Provider</strong>' +
+      legendGroupHtml('US-basiert', ['microsoft', 'aws', 'google'], dnsData.counts) +
+      legendGroupHtml('Deutsch', ['independent', 'german-isp', 'ionos', 'strato', 'hetzner', 'telekom'], dnsData.counts) +
       '</div>';
     L.DomEvent.disableClickPropagation(div);
     return div;
@@ -413,54 +397,49 @@ async function loadData() {
   legend.addTo(map);
   document.querySelector('.legend-toggle').addEventListener('click', toggleLegend);
 
-  // Render lakes as a distinct layer
-  if (topo.objects.lakes) {
-    const lakes = topojson.feature(topo, topo.objects.lakes);
-    L.geoJSON(lakes, {
-      interactive: false,
-      style: { fillColor: '#5B9BD5', fillOpacity: 1, weight: 0, color: 'transparent' }
-    }).addTo(map);
-  }
-
-  // Extract municipalities from the topology
-  const geojson = topojson.feature(topo, topo.objects.municipalities);
+  const objectKeys = Object.keys(topo.objects);
+  const geoKey = objectKeys.find(k => k.includes('gem') || k.includes('mun')) || objectKeys[0];
+  const geojson = topojson.feature(topo, topo.objects[geoKey]);
 
   L.geoJSON(geojson, {
     style: function (feature) {
-      const bfs = String(feature.id);
-      const m = muni[bfs];
+      const props = feature.properties || {};
+      const ags = String(props.AGS || props.ags || props.RS || props.rs || feature.id || '');
+      const m = muni[ags];
       const provider = m ? m.provider : 'unknown';
       return {
         fillColor: COLORS[provider] || COLORS.unknown,
-        weight: 0.5,
-        color: '#666',
+        weight: 0.3,
+        color: '#888',
         fillOpacity: 0.75
       };
     },
     onEachFeature: function (feature, layer) {
-      const bfs = String(feature.id);
-      const m = muni[bfs];
+      const props = feature.properties || {};
+      const ags = String(props.AGS || props.ags || props.RS || props.rs || feature.id || '');
+      const m = muni[ags];
       if (!m) {
-        layer.bindPopup(`<div class="info-popup"><strong>BFS ${bfs}</strong><br>No data</div>`);
+        const geoName = props.GEN || props.gen || props.NAME || '';
+        layer.bindPopup(`<div class="info-popup"><strong>${escapeHtml(geoName || 'AGS ' + ags)}</strong><br>Keine Daten</div>`);
         return;
       }
       const color = COLORS[m.provider] || COLORS.unknown;
-      const textColor = ['aws', 'google', 'infomaniak', 'swiss-isp', 'unknown'].includes(m.provider) ? '#333' : '#fff';
+      const textColor = ['aws', 'google', 'ionos', 'strato', 'hetzner', 'telekom', 'posteo', 'mailbox.org', 'tutanota', 'open-xchange', 'german-isp', 'unknown'].includes(m.provider) ? '#333' : '#fff';
       const label = LABELS[m.provider] || m.provider;
 
       let mxSection = '';
       if (m.mx && m.mx.length > 0) {
-        mxSection = `<div class="popup-section"><div class="popup-section-title">Incoming mail handled by <span class="popup-section-hint">(MX)</span></div>${renderTable(m.mx)}</div>`;
+        mxSection = `<div class="popup-section"><div class="popup-section-title">Eingehende Mail verarbeitet durch <span class="popup-section-hint">(MX)</span></div>${renderTable(m.mx)}</div>`;
       }
 
       const spfDelegations = parseSpfDelegations(m.spf);
       let spfSection = '';
       if (spfDelegations.length > 0) {
-        spfSection = `<div class="popup-section"><div class="popup-section-title">Authorized to send mail <span class="popup-section-hint">(SPF)</span></div>${renderTable(spfDelegations)}</div>`;
+        spfSection = `<div class="popup-section"><div class="popup-section-title">Autorisiert zum Senden <span class="popup-section-hint">(SPF)</span></div>${renderTable(spfDelegations)}</div>`;
       }
 
       const eName = escapeHtml(m.name);
-      const eDomain = escapeHtml(m.domain || 'unknown');
+      const eDomain = escapeHtml(m.domain || 'unbekannt');
       const eLabel = escapeHtml(label);
       layer.bindPopup(
         `<div class="info-popup">` +
@@ -471,7 +450,7 @@ async function loadData() {
         { maxWidth: 450 }
       );
       layer.on('mouseover', function () { this.setStyle({ weight: 2, color: '#333' }); });
-      layer.on('mouseout', function () { this.setStyle({ weight: 0.5, color: '#666' }); });
+      layer.on('mouseout', function () { this.setStyle({ weight: 0.3, color: '#888' }); });
     }
   }).addTo(map);
 
@@ -484,7 +463,7 @@ loadData().catch(err => {
   console.error('Failed to load data:', err);
   const loading = document.getElementById('map-loading');
   if (loading) {
-    loading.textContent = 'Failed to load map data. Please try again later.';
+    loading.textContent = 'Kartendaten konnten nicht geladen werden. Bitte später erneut versuchen.';
     loading.style.color = '#dc2626';
   }
 });

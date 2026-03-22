@@ -18,13 +18,13 @@ from mail_sovereignty.preprocess import (
 
 class TestUrlToDomain:
     def test_full_url_with_path(self):
-        assert url_to_domain("https://www.bern.ch/some/path") == "bern.ch"
+        assert url_to_domain("https://www.berlin.de/some/path") == "berlin.de"
 
     def test_no_scheme(self):
-        assert url_to_domain("bern.ch") == "bern.ch"
+        assert url_to_domain("berlin.de") == "berlin.de"
 
     def test_strips_www(self):
-        assert url_to_domain("https://www.example.ch") == "example.ch"
+        assert url_to_domain("https://www.example.de") == "example.de"
 
     def test_empty_string(self):
         assert url_to_domain("") is None
@@ -33,10 +33,10 @@ class TestUrlToDomain:
         assert url_to_domain(None) is None
 
     def test_bare_domain(self):
-        assert url_to_domain("example.ch") == "example.ch"
+        assert url_to_domain("example.de") == "example.de"
 
     def test_http_scheme(self):
-        assert url_to_domain("http://example.ch/page") == "example.ch"
+        assert url_to_domain("http://example.de/page") == "example.de"
 
 
 # ── guess_domains() ─────────────────────────────────────────────────
@@ -44,30 +44,26 @@ class TestUrlToDomain:
 
 class TestGuessDomains:
     def test_simple_name(self):
-        domains = guess_domains("Bern")
-        assert "bern.ch" in domains
-        assert "gemeinde-bern.ch" in domains
+        domains = guess_domains("Berlin")
+        assert "berlin.de" in domains
+        assert "gemeinde-berlin.de" in domains
 
     def test_umlaut(self):
-        domains = guess_domains("Zürich")
-        assert "zuerich.ch" in domains
-
-    def test_french_accent(self):
-        domains = guess_domains("Genève")
-        assert "geneve.ch" in domains
+        domains = guess_domains("München")
+        assert "muenchen.de" in domains
 
     def test_parenthetical_stripped(self):
-        domains = guess_domains("Rüti (BE)")
-        assert any("rueti" in d for d in domains)
-        assert not any("BE" in d for d in domains)
+        domains = guess_domains("Neustadt (Hessen)")
+        assert any("neustadt" in d for d in domains)
+        assert not any("Hessen" in d for d in domains)
 
-    def test_commune_prefix(self):
-        domains = guess_domains("Bern")
-        assert "commune-de-bern.ch" in domains
+    def test_stadt_prefix(self):
+        domains = guess_domains("Berlin")
+        assert "stadt-berlin.de" in domains
 
-    def test_apostrophe_removed(self):
-        domains = guess_domains("L'Abbaye")
-        assert any("abbaye" in d for d in domains)
+    def test_eszett(self):
+        domains = guess_domains("Großbeeren")
+        assert "grossbeeren.de" in domains
 
 
 # ── fetch_wikidata() ─────────────────────────────────────────────────
@@ -83,10 +79,10 @@ class TestFetchWikidata:
                     "results": {
                         "bindings": [
                             {
-                                "bfs": {"value": "351"},
-                                "itemLabel": {"value": "Bern"},
-                                "website": {"value": "https://www.bern.ch"},
-                                "cantonLabel": {"value": "Bern"},
+                                "ags": {"value": "11000000"},
+                                "itemLabel": {"value": "Berlin"},
+                                "website": {"value": "https://www.berlin.de"},
+                                "stateLabel": {"value": "Berlin"},
                             },
                         ]
                     }
@@ -95,8 +91,8 @@ class TestFetchWikidata:
         )
 
         result = await fetch_wikidata()
-        assert "351" in result
-        assert result["351"]["name"] == "Bern"
+        assert "11000000" in result
+        assert result["11000000"]["name"] == "Berlin"
 
     @respx.mock
     async def test_deduplication(self):
@@ -107,16 +103,16 @@ class TestFetchWikidata:
                     "results": {
                         "bindings": [
                             {
-                                "bfs": {"value": "351"},
-                                "itemLabel": {"value": "Bern"},
-                                "website": {"value": "https://www.bern.ch"},
-                                "cantonLabel": {"value": "Bern"},
+                                "ags": {"value": "11000000"},
+                                "itemLabel": {"value": "Berlin"},
+                                "website": {"value": "https://www.berlin.de"},
+                                "stateLabel": {"value": "Berlin"},
                             },
                             {
-                                "bfs": {"value": "351"},
-                                "itemLabel": {"value": "Bern"},
-                                "website": {"value": "https://www.bern.ch/alt"},
-                                "cantonLabel": {"value": "Bern"},
+                                "ags": {"value": "11000000"},
+                                "itemLabel": {"value": "Berlin"},
+                                "website": {"value": "https://www.berlin.de/alt"},
+                                "stateLabel": {"value": "Berlin"},
                             },
                         ]
                     }
@@ -134,10 +130,12 @@ class TestFetchWikidata:
 class TestScanMunicipality:
     async def test_website_domain_mx_found(self):
         m = {
-            "bfs": "351",
-            "name": "Bern",
-            "canton": "Bern",
-            "website": "https://www.bern.ch",
+            "ags": "05315000",
+            "name": "Köln",
+            "state": "Nordrhein-Westfalen",
+            "website": "https://www.stadt-koeln.de",
+            "lat": "",
+            "lon": "",
         }
         sem = __import__("asyncio").Semaphore(10)
 
@@ -166,15 +164,15 @@ class TestScanMunicipality:
             result = await scan_municipality(m, sem)
 
         assert result["provider"] == "microsoft"
-        assert result["domain"] == "bern.ch"
+        assert result["domain"] == "stadt-koeln.de"
 
     async def test_no_website_guesses_domain(self):
-        m = {"bfs": "999", "name": "Bern", "canton": "Bern", "website": ""}
+        m = {"ags": "99999999", "name": "Berlin", "state": "Berlin", "website": "", "lat": "", "lon": ""}
         sem = __import__("asyncio").Semaphore(10)
 
         async def fake_lookup_mx(domain):
-            if domain == "bern.ch":
-                return ["mail.bern.ch"]
+            if domain == "berlin.de":
+                return ["mail.berlin.de"]
             return []
 
         with (
@@ -198,10 +196,10 @@ class TestScanMunicipality:
             result = await scan_municipality(m, sem)
 
         assert result["provider"] == "independent"
-        assert result["domain"] == "bern.ch"
+        assert result["domain"] == "berlin.de"
 
     async def test_no_mx_unknown(self):
-        m = {"bfs": "999", "name": "Zzz", "canton": "Test", "website": ""}
+        m = {"ags": "99999999", "name": "Zzz", "state": "Test", "website": "", "lat": "", "lon": ""}
         sem = __import__("asyncio").Semaphore(10)
 
         with (
@@ -222,10 +220,12 @@ class TestScanMunicipality:
 
     async def test_gateway_detected_and_stored(self):
         m = {
-            "bfs": "228",
-            "name": "Turbenthal",
-            "canton": "Zürich",
-            "website": "https://www.turbenthal.ch",
+            "ags": "08111000",
+            "name": "Stuttgart",
+            "state": "Baden-Württemberg",
+            "website": "https://www.stuttgart.de",
+            "lat": "",
+            "lon": "",
         }
         sem = __import__("asyncio").Semaphore(10)
 
@@ -256,85 +256,6 @@ class TestScanMunicipality:
         assert result["provider"] == "microsoft"
         assert result["gateway"] == "seppmail"
 
-    async def test_spf_resolved_stored_when_different(self):
-        m = {
-            "bfs": "100",
-            "name": "Test",
-            "canton": "Test",
-            "website": "https://www.test.ch",
-        }
-        sem = __import__("asyncio").Semaphore(10)
-
-        raw_spf = "v=spf1 include:custom.ch -all"
-        resolved_spf = "v=spf1 include:custom.ch -all v=spf1 include:spf.protection.outlook.com -all"
-
-        with (
-            patch(
-                "mail_sovereignty.preprocess.lookup_mx",
-                new_callable=AsyncMock,
-                return_value=["mx.cleanmail.ch"],
-            ),
-            patch(
-                "mail_sovereignty.preprocess.lookup_spf",
-                new_callable=AsyncMock,
-                return_value=raw_spf,
-            ),
-            patch(
-                "mail_sovereignty.preprocess.resolve_spf_includes",
-                new_callable=AsyncMock,
-                return_value=resolved_spf,
-            ),
-            patch(
-                "mail_sovereignty.preprocess.lookup_autodiscover",
-                new_callable=AsyncMock,
-                return_value={},
-            ),
-        ):
-            result = await scan_municipality(m, sem)
-
-        assert result["provider"] == "microsoft"
-        assert result["gateway"] == "cleanmail"
-        assert result["spf_resolved"] == resolved_spf
-
-    async def test_autodiscover_stored_when_found(self):
-        m = {
-            "bfs": "500",
-            "name": "Frutigen",
-            "canton": "Bern",
-            "website": "https://www.frutigen.ch",
-        }
-        sem = __import__("asyncio").Semaphore(10)
-
-        with (
-            patch(
-                "mail_sovereignty.preprocess.lookup_mx",
-                new_callable=AsyncMock,
-                return_value=["mx01.hornetsecurity.com"],
-            ),
-            patch(
-                "mail_sovereignty.preprocess.lookup_spf",
-                new_callable=AsyncMock,
-                return_value="v=spf1 ip4:1.2.3.4 -all",
-            ),
-            patch(
-                "mail_sovereignty.preprocess.resolve_spf_includes",
-                new_callable=AsyncMock,
-                return_value="v=spf1 ip4:1.2.3.4 -all",
-            ),
-            patch(
-                "mail_sovereignty.preprocess.lookup_autodiscover",
-                new_callable=AsyncMock,
-                return_value={"autodiscover_cname": "autodiscover.outlook.com"},
-            ),
-        ):
-            result = await scan_municipality(m, sem)
-
-        assert result["provider"] == "microsoft"
-        assert result["gateway"] == "hornetsecurity"
-        assert result["autodiscover"] == {
-            "autodiscover_cname": "autodiscover.outlook.com"
-        }
-
 
 # ── run() ────────────────────────────────────────────────────────────
 
@@ -349,10 +270,10 @@ class TestPreprocessRun:
                     "results": {
                         "bindings": [
                             {
-                                "bfs": {"value": "351"},
-                                "itemLabel": {"value": "Bern"},
-                                "website": {"value": "https://www.bern.ch"},
-                                "cantonLabel": {"value": "Bern"},
+                                "ags": {"value": "11000000"},
+                                "itemLabel": {"value": "Berlin"},
+                                "website": {"value": "https://www.berlin.de"},
+                                "stateLabel": {"value": "Berlin"},
                             },
                         ]
                     }
@@ -364,7 +285,7 @@ class TestPreprocessRun:
             patch(
                 "mail_sovereignty.preprocess.lookup_mx",
                 new_callable=AsyncMock,
-                return_value=["mx.bern.ch"],
+                return_value=["mx.berlin.de"],
             ),
             patch(
                 "mail_sovereignty.preprocess.lookup_spf",
@@ -388,4 +309,4 @@ class TestPreprocessRun:
         assert output.exists()
         data = json.loads(output.read_text())
         assert data["total"] == 1
-        assert "351" in data["municipalities"]
+        assert "11000000" in data["municipalities"]

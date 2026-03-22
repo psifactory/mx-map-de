@@ -23,7 +23,7 @@ async def fetch_smtp_banner(mx_host: str, timeout: float = 10.0) -> dict[str, st
         banner = banner_line.decode("utf-8", errors="replace").strip()
 
         # Send EHLO
-        writer.write(b"EHLO mxmap.ch\r\n")
+        writer.write(b"EHLO mx-map.de\r\n")
         await writer.drain()
 
         # Read multi-line EHLO response (250-... continues, 250 ... ends)

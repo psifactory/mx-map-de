@@ -32,50 +32,34 @@ def url_to_domain(url: str | None) -> str | None:
 
 
 def guess_domains(name: str) -> list[str]:
-    """Generate a small set of plausible domain guesses for a municipality."""
+    """Generate a small set of plausible domain guesses for a German municipality."""
     raw = name.lower().strip()
     raw = re.sub(r"\s*\(.*?\)\s*", "", raw)
 
     # German umlaut transliteration
     de = raw.replace("\u00fc", "ue").replace("\u00e4", "ae").replace("\u00f6", "oe")
-    # French accent removal
-    fr = raw
-    for a, b in [
-        ("\u00e9", "e"),
-        ("\u00e8", "e"),
-        ("\u00ea", "e"),
-        ("\u00eb", "e"),
-        ("\u00e0", "a"),
-        ("\u00e2", "a"),
-        ("\u00f4", "o"),
-        ("\u00ee", "i"),
-        ("\u00f9", "u"),
-        ("\u00fb", "u"),
-        ("\u00e7", "c"),
-        ("\u00ef", "i"),
-    ]:
-        fr = fr.replace(a, b)
+    de = de.replace("\u00df", "ss")
 
     def slugify(s):
         s = re.sub(r"['\u2019`]", "", s)
         s = re.sub(r"[^a-z0-9]+", "-", s)
         return s.strip("-")
 
-    slugs = {slugify(de), slugify(fr), slugify(raw)} - {""}
+    slugs = {slugify(de), slugify(raw)} - {""}
     candidates = set()
     for slug in slugs:
-        candidates.add(f"{slug}.ch")
-        candidates.add(f"gemeinde-{slug}.ch")
-        candidates.add(f"commune-de-{slug}.ch")
+        candidates.add(f"{slug}.de")
+        candidates.add(f"gemeinde-{slug}.de")
+        candidates.add(f"stadt-{slug}.de")
     return sorted(candidates)
 
 
-async def fetch_wikidata() -> dict[str, dict[str, str]]:
-    """Query Wikidata for all Swiss municipalities."""
-    print("Querying Wikidata for Swiss municipalities...")
+async def fetch_wikidata() -> dict[str, dict[str, Any]]:
+    """Query Wikidata for all German municipalities."""
+    print("Querying Wikidata for German municipalities...")
     headers = {
         "Accept": "application/sparql-results+json",
-        "User-Agent": "MXmap/1.0 (https://github.com/davidhuser/mxmap)",
+        "User-Agent": "MXmap-DE/1.0 (https://github.com/sebbo/mx-map-de)",
     }
     async with httpx.AsyncClient(timeout=120) as client:
         r = await client.post(
@@ -88,20 +72,31 @@ async def fetch_wikidata() -> dict[str, dict[str, str]]:
 
     municipalities = {}
     for row in data["results"]["bindings"]:
-        bfs = row["bfs"]["value"]
-        name = row.get("itemLabel", {}).get("value", f"BFS-{bfs}")
+        ags = row["ags"]["value"]
+        name = row.get("itemLabel", {}).get("value", f"AGS-{ags}")
         website = row.get("website", {}).get("value", "")
-        canton = row.get("cantonLabel", {}).get("value", "")
+        state = row.get("stateLabel", {}).get("value", "")
 
-        if bfs not in municipalities:
-            municipalities[bfs] = {
-                "bfs": bfs,
+        # Extract coordinates if available
+        coord = row.get("coord", {}).get("value", "")
+        lat, lon = "", ""
+        if coord:
+            # Format: Point(lon lat)
+            match = re.match(r"Point\(([-\d.]+)\s+([-\d.]+)\)", coord)
+            if match:
+                lon, lat = match.group(1), match.group(2)
+
+        if ags not in municipalities:
+            municipalities[ags] = {
+                "ags": ags,
                 "name": name,
                 "website": website,
-                "canton": canton,
+                "state": state,
+                "lat": lat,
+                "lon": lon,
             }
-        elif not municipalities[bfs]["website"] and website:
-            municipalities[bfs]["website"] = website
+        elif not municipalities[ags]["website"] and website:
+            municipalities[ags]["website"] = website
 
     print(
         f"  Found {len(municipalities)} municipalities, "
@@ -111,7 +106,7 @@ async def fetch_wikidata() -> dict[str, dict[str, str]]:
 
 
 async def scan_municipality(
-    m: dict[str, str], semaphore: asyncio.Semaphore
+    m: dict[str, Any], semaphore: asyncio.Semaphore
 ) -> dict[str, Any]:
     """Scan a single municipality for email provider info."""
     async with semaphore:
@@ -148,14 +143,17 @@ async def scan_municipality(
         gateway = detect_gateway(mx) if mx else None
 
         entry: dict[str, Any] = {
-            "bfs": m["bfs"],
+            "ags": m["ags"],
             "name": m["name"],
-            "canton": m.get("canton", ""),
+            "state": m.get("state", ""),
             "domain": domain or "",
             "mx": mx,
             "spf": spf,
             "provider": provider,
         }
+        if m.get("lat") and m.get("lon"):
+            entry["lat"] = float(m["lat"])
+            entry["lon"] = float(m["lon"])
         if spf_resolved and spf_resolved != spf:
             entry["spf_resolved"] = spf_resolved
         if gateway:
@@ -183,19 +181,19 @@ async def run(output_path: Path) -> None:
     done = 0
     for coro in asyncio.as_completed(tasks):
         result = await coro
-        results[result["bfs"]] = result
+        results[result["ags"]] = result
         done += 1
-        if done % 50 == 0 or done == total:
+        if done % 100 == 0 or done == total:
             counts = {}
             for r in results.values():
                 counts[r["provider"]] = counts.get(r["provider"], 0) + 1
             print(
-                f"  [{done:4d}/{total}]  "
+                f"  [{done:5d}/{total}]  "
                 f"MS={counts.get('microsoft', 0)}  "
                 f"Google={counts.get('google', 0)}  "
-                f"Infomaniak={counts.get('infomaniak', 0)}  "
-                f"AWS={counts.get('aws', 0)}  "
-                f"ISP={counts.get('swiss-isp', 0)}  "
+                f"IONOS={counts.get('ionos', 0)}  "
+                f"Strato={counts.get('strato', 0)}  "
+                f"Hetzner={counts.get('hetzner', 0)}  "
                 f"Indep={counts.get('independent', 0)}  "
                 f"?={counts.get('unknown', 0)}"
             )
@@ -204,19 +202,22 @@ async def run(output_path: Path) -> None:
     for r in results.values():
         counts[r["provider"]] = counts.get(r["provider"], 0) + 1
 
-    print(f"\n{'=' * 50}")
+    print(f"\n{'=' * 60}")
     print(f"RESULTS: {len(results)} municipalities scanned")
     print(f"  Microsoft/Azure : {counts.get('microsoft', 0):>5}")
     print(f"  Google/GCP      : {counts.get('google', 0):>5}")
-    print(f"  Infomaniak      : {counts.get('infomaniak', 0):>5}")
+    print(f"  IONOS/1&1       : {counts.get('ionos', 0):>5}")
+    print(f"  Strato          : {counts.get('strato', 0):>5}")
+    print(f"  Hetzner         : {counts.get('hetzner', 0):>5}")
+    print(f"  Telekom         : {counts.get('telekom', 0):>5}")
     print(f"  AWS             : {counts.get('aws', 0):>5}")
-    print(f"  Swiss ISP       : {counts.get('swiss-isp', 0):>5}")
+    print(f"  German ISP      : {counts.get('german-isp', 0):>5}")
     print(f"  Independent     : {counts.get('independent', 0):>5}")
     print(f"  Unknown/No MX   : {counts.get('unknown', 0):>5}")
-    print(f"{'=' * 50}")
+    print(f"{'=' * 60}")
 
     sorted_counts = dict(sorted(counts.items()))
-    sorted_munis = dict(sorted(results.items(), key=lambda kv: int(kv[0])))
+    sorted_munis = dict(sorted(results.items(), key=lambda kv: kv[0]))
 
     output = {
         "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

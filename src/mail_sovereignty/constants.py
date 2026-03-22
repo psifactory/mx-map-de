@@ -17,13 +17,27 @@ GOOGLE_KEYWORDS = [
     "aspmx.l.google.com",
 ]
 AWS_KEYWORDS = ["amazonaws", "amazonses", "awsdns"]
-INFOMANIAK_KEYWORDS = ["infomaniak", "ikmail.com", "mxpool.infomaniak"]
+IONOS_KEYWORDS = ["ionos", "1and1", "schlund", "ui-dns", "perfora.net", "kundenserver.de"]
+STRATO_KEYWORDS = ["strato"]
+HETZNER_KEYWORDS = ["hetzner", "your-server.de"]
+TELEKOM_KEYWORDS = ["t-online", "telekom", "mms.t-online.de"]
+POSTEO_KEYWORDS = ["posteo"]
+MAILBOX_ORG_KEYWORDS = ["mailbox.org"]
+TUTANOTA_KEYWORDS = ["tutanota", "tutamail", "tuta.io"]
+OPEN_XCHANGE_KEYWORDS = ["open-xchange"]
 
 PROVIDER_KEYWORDS = {
     "microsoft": MICROSOFT_KEYWORDS,
     "google": GOOGLE_KEYWORDS,
     "aws": AWS_KEYWORDS,
-    "infomaniak": INFOMANIAK_KEYWORDS,
+    "ionos": IONOS_KEYWORDS,
+    "strato": STRATO_KEYWORDS,
+    "hetzner": HETZNER_KEYWORDS,
+    "telekom": TELEKOM_KEYWORDS,
+    "posteo": POSTEO_KEYWORDS,
+    "mailbox.org": MAILBOX_ORG_KEYWORDS,
+    "tutanota": TUTANOTA_KEYWORDS,
+    "open-xchange": OPEN_XCHANGE_KEYWORDS,
 }
 
 FOREIGN_SENDER_KEYWORDS = {
@@ -42,35 +56,30 @@ FOREIGN_SENDER_KEYWORDS = {
 
 SPARQL_URL = "https://query.wikidata.org/sparql"
 SPARQL_QUERY = """
-SELECT ?item ?itemLabel ?bfs ?website ?cantonLabel WHERE {
-  ?item wdt:P31 wd:Q70208 .          # instance of: municipality of Switzerland
-  ?item wdt:P771 ?bfs .              # Swiss municipality code (BFS number)
-  FILTER NOT EXISTS {                  # exclude dissolved municipalities
+SELECT ?item ?itemLabel ?ags ?website ?stateLabel ?coord WHERE {
+  ?item wdt:P31/wdt:P279* wd:Q262166 .   # instance of (or subclass of) municipality of Germany
+  ?item wdt:P439 ?ags .                   # official municipality key (AGS / Gemeindeschluessel)
+  FILTER NOT EXISTS {                      # exclude dissolved municipalities
     ?item wdt:P576 ?dissolved .
     FILTER(?dissolved <= NOW())
   }
-  FILTER NOT EXISTS {                  # exclude municipalities with ended P31 statement
-    ?item p:P31 ?stmt .
-    ?stmt ps:P31 wd:Q70208 .
-    ?stmt pq:P582 ?endTime .
-    FILTER(?endTime <= NOW())
-  }
-  FILTER NOT EXISTS {                  # exclude municipalities replaced by a successor
+  FILTER NOT EXISTS {                      # exclude municipalities replaced by a successor
     ?item wdt:P1366 ?successor .
   }
   OPTIONAL { ?item wdt:P856 ?website . }
-  OPTIONAL { ?item wdt:P131 ?canton .
-             ?canton wdt:P31 wd:Q23058 . }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "de,fr,it,rm,en" . }
+  OPTIONAL { ?item wdt:P131 ?state .
+             ?state wdt:P31 wd:Q1221156 . }
+  OPTIONAL { ?item wdt:P625 ?coord . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de,en" . }
 }
-ORDER BY xsd:integer(?bfs)
+ORDER BY ?ags
 """
 
 EMAIL_RE = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
 TYPO3_RE = re.compile(r"linkTo_UnCryptMailto\(['\"]([^'\"]+)['\"]")
 SKIP_DOMAINS = {
     "example.com",
-    "example.ch",
+    "example.de",
     "sentry.io",
     "w3.org",
     "gstatic.com",
@@ -80,48 +89,46 @@ SKIP_DOMAINS = {
 
 SUBPAGES = [
     "/kontakt",
-    "/contact",
     "/impressum",
     "/kontakt/",
-    "/contact/",
     "/impressum/",
     "/de/kontakt",
-    "/fr/contact",
-    "/it/contatto",
     "/verwaltung",
-    "/administration",
-    "/autorites",
+    "/rathaus",
+    "/buergerservice",
     "/gemeinde",
-    "/commune",
-    "/comune",
+    "/stadt",
+    "/stadtverwaltung",
+    "/gemeindeverwaltung",
+    "/ansprechpartner",
 ]
 
 GATEWAY_KEYWORDS = {
     "seppmail": ["seppmail.cloud", "seppmail.com"],
-    "cleanmail": ["cleanmail.ch", "cleanmail.safecenter.ch"],
     "barracuda": ["barracudanetworks.com", "barracuda.com"],
     "trendmicro": ["tmes.trendmicro.eu", "tmes.trendmicro.com"],
-    "hornetsecurity": ["hornetsecurity.com", "hornetsecurity.ch"],
-    "abxsec": ["abxsec.com"],
+    "hornetsecurity": ["hornetsecurity.com"],
     "proofpoint": ["ppe-hosted.com"],
     "sophos": ["hydra.sophos.com"],
-    "spamvor": ["spamvor.com"],
+    "mimecast": ["mimecast.com"],
+    "retarus": ["retarus.com", "retarus.de"],
+    "nospamproxy": ["nospamproxy"],
 }
 
-SWISS_ISP_ASNS: dict[int, str] = {
-    559: "SWITCH",
-    3303: "Swisscom",
-    6730: "Sunrise UPC",
-    6830: "Liberty Global (UPC/Sunrise)",
-    12399: "Sunrise",
-    13030: "Init7",
-    13213: "Cyberlink AG",
-    15576: "NTS",
-    15600: "Quickline",
-    15796: "Netzone AG",
-    24889: "Datapark AG",
-    29691: "Hostpoint / Green.ch",
-    51786: "Infomaniak Network SA",
+GERMAN_ISP_ASNS: dict[int, str] = {
+    3320: "Deutsche Telekom",
+    6724: "Strato",
+    6805: "Telefonica / O2",
+    8560: "IONOS / 1&1",
+    8972: "Host Europe / PlusServer",
+    12897: "Hetzner",
+    13335: "Cloudflare",
+    24940: "Hetzner Online",
+    29551: "STRATO",
+    31334: "Kabel Deutschland / Vodafone",
+    48314: "Michael Sapper (IP-Projects)",
+    51167: "Contabo",
+    197540: "netcup",
 }
 
 CONCURRENCY = 20
@@ -138,8 +145,17 @@ SMTP_BANNER_KEYWORDS = {
         "mx.google.com",
         "google esmtp",
     ],
-    "infomaniak": [
-        "infomaniak",
+    "ionos": [
+        "kundenserver.de",
+        "1and1",
+        "ionos",
+    ],
+    "strato": [
+        "strato",
+    ],
+    "hetzner": [
+        "hetzner",
+        "your-server.de",
     ],
     "aws": [
         "amazonaws",

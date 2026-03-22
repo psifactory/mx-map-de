@@ -1,69 +1,20 @@
-# MXmap — Email Providers of Swiss Municipalities
+# MX-Map — E-Mail-Provider deutscher Gemeinden
 
-[![CI](https://github.com/davidhuser/mxmap/actions/workflows/ci.yml/badge.svg)](https://github.com/davidhuser/mxmap/actions/workflows/ci.yml)
-[![Nightly](https://github.com/davidhuser/mxmap/actions/workflows/nightly.yml/badge.svg)](https://github.com/davidhuser/mxmap/actions/workflows/nightly.yml)
+Eine interaktive Karte, die zeigt, wo deutsche Gemeinden ihre E-Mail hosten — ob bei US-Hyperscalern (Microsoft, Google, AWS) oder bei deutschen Anbietern (IONOS, Strato, Hetzner, Telekom) oder eigenständigen Lösungen.
 
-An interactive map showing where Swiss municipalities host their email — whether with US hyperscalers (Microsoft, Google, AWS) or Swiss providers or other solutions.
+**[Zur Karte](https://mx-map.de)**
 
-**[View the live map](https://mxmap.ch)**
+Fork von [mxmap.ch](https://mxmap.ch) (Schweizer Version).
 
-[![Screenshot of MXmap](og-image.jpg)](https://mxmap.ch)
+## Wie es funktioniert
 
-## How it works
+Die Daten-Pipeline hat drei Schritte:
 
-The data pipeline has three steps:
+1. **Preprocess** — Ruft alle ~10.800 deutschen Gemeinden von Wikidata ab, führt MX- und SPF-DNS-Lookups auf deren offiziellen Domains durch und klassifiziert den E-Mail-Provider jeder Gemeinde.
+2. **Postprocess** — Wendet manuelle Korrekturen für Sonderfälle an, wiederholt DNS für ungelöste Domains, prüft SMTP-Banner und durchsucht Webseiten nach E-Mail-Adressen.
+3. **Validate** — Kreuzvalidiert MX- und SPF-Records, vergibt einen Konfidenz-Score (0-100) und erstellt einen Validierungsbericht.
 
-1. **Preprocess** -- Fetches all ~2100 Swiss municipalities from Wikidata, performs MX and SPF DNS lookups on their official domains, and classifies each municipality's email provider.
-2. **Postprocess** -- Applies manual overrides for edge cases, retries DNS for unresolved domains, checks SMTP banners of independent MX hosts for hidden providers, then scrapes websites of still-unclassified municipalities for email addresses.
-3. **Validate** -- Cross-validates MX and SPF records, assigns a confidence score (0-100) to each entry, and generates a validation report.
-
-```mermaid
-flowchart TD
-    trigger["Nightly trigger"] --> wikidata
-
-    subgraph pre ["1 · Preprocess"]
-        wikidata[/"Wikidata SPARQL"/] --> fetch["Fetch ~2100 municipalities"]
-        fetch --> domains["Extract domains +<br/>guess candidates"]
-        domains --> dns["MX + SPF lookups<br/>(3 resolvers)"]
-        dns --> spf_resolve["Resolve SPF includes<br/>& redirects"]
-        spf_resolve --> cname["Follow CNAME chains"]
-        cname --> asn["ASN lookups<br/>(Team Cymru)"]
-        asn --> autodiscover["Autodiscover DNS<br/>(CNAME + SRV)"]
-        autodiscover --> gateway["Detect gateways<br/>(SeppMail, Barracuda,<br/>Proofpoint, Sophos ...)"]
-        gateway --> classify["Classify providers<br/>MX → CNAME → SPF → Autodiscover → SMTP"]
-    end
-
-    classify --> overrides
-
-    subgraph post ["2 · Postprocess"]
-        overrides["Apply manual overrides<br/>(19 edge cases)"] --> retry["Retry DNS<br/>for unknowns"]
-        retry --> smtp["SMTP banner check<br/>(EHLO on port 25)"]
-        smtp --> scrape_urls["Probe municipal websites<br/>(/kontakt, /contact, /impressum …)"]
-        scrape_urls --> extract["Extract emails<br/>+ decrypt TYPO3 obfuscation"]
-        extract --> scrape_dns["DNS lookup on<br/>email domains"]
-        scrape_dns --> reclassify["Reclassify<br/>resolved entries"]
-    end
-
-    reclassify --> data[("data.json")]
-    data --> score
-
-    subgraph val ["3 · Validate"]
-        score["Confidence scoring · 0–100"] --> gwarn["Flag potential<br/>unknown gateways"]
-        gwarn --> gate{"Quality gate<br/>avg ≥ 70 · high-conf ≥ 80%"}
-    end
-
-    gate -- "Pass" --> deploy["Commit & deploy to Pages"]
-    gate -- "Fail" --> issue["Open GitHub issue"]
-
-    style trigger fill:#e8f4fd,stroke:#4a90d9,color:#1a5276
-    style wikidata fill:#e8f4fd,stroke:#4a90d9,color:#1a5276
-    style data fill:#d5f5e3,stroke:#27ae60,color:#1e8449
-    style deploy fill:#d5f5e3,stroke:#27ae60,color:#1e8449
-    style issue fill:#fadbd8,stroke:#e74c3c,color:#922b21
-    style gate fill:#fdebd0,stroke:#e67e22,color:#935116
-```
-
-## Quick start
+## Quick Start
 
 ```bash
 uv sync
@@ -72,29 +23,36 @@ uv run preprocess
 uv run postprocess
 uv run validate
 
-# Serve the map locally
+# Karte lokal starten
 python -m http.server
 ```
 
-## Development
+## Entwicklung
 
 ```bash
 uv sync --group dev
 
-# Run tests with coverage
+# Tests mit Coverage
 uv run pytest --cov --cov-report=term-missing
 
-# Lint the codebase
+# Linting
 uv run ruff check src tests
 uv run ruff format src tests
 ```
 
-## Related work
+## Test-Script
 
-* [hpr4379 :: Mapping Municipalities' Digital Dependencies](https://hackerpublicradio.org/eps/hpr4379/index.html)
-* if you know of other similar projects, please open an issue or submit a PR to add them here!
+Zum Testen mit einer kleinen Gemeinde-Liste (10 Gemeinden):
 
-## Contributing
+```bash
+uv run python scripts/test_sample.py
+```
 
-If you spot a misclassification, please open an issue with the BFS number and the correct provider.
-For municipalities where automated detection fails, corrections can be added to the `MANUAL_OVERRIDES` dict in `src/mail_sovereignty/postprocess.py`.
+## Verwandte Projekte
+
+* [mxmap.ch](https://mxmap.ch) — Original für die Schweiz (~2.100 Gemeinden)
+
+## Beitragen
+
+Fehlklassifizierung gefunden? Bitte ein Issue mit der AGS-Nummer und dem korrekten Provider erstellen.
+Für Gemeinden, bei denen die automatische Erkennung fehlschlägt, können Korrekturen in `MANUAL_OVERRIDES` in `src/mail_sovereignty/postprocess.py` hinzugefügt werden.

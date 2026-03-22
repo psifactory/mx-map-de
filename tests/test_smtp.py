@@ -118,7 +118,7 @@ async def _fetch_with_port(
         banner_line = await asyncio.wait_for(reader.readline(), timeout=timeout)
         banner = banner_line.decode("utf-8", errors="replace").strip()
 
-        writer.write(b"EHLO mxmap.ch\r\n")
+        writer.write(b"EHLO mx-map.de\r\n")
         await writer.drain()
 
         ehlo_lines = []
