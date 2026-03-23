@@ -9,7 +9,6 @@ import httpx
 from mail_sovereignty.classify import (
     classify,
     classify_from_smtp_banner,
-    detect_gateway,
 )
 from mail_sovereignty.constants import (
     CONCURRENCY_POSTPROCESS,
@@ -149,15 +148,18 @@ async def process_unknown(
                 mx_cnames = await resolve_mx_cnames(mx)
                 mx_asns = await resolve_mx_asns(mx)
                 autodiscover = await lookup_autodiscover(email_domain)
-                provider, backend = classify(
+                cls = classify(
                     mx,
                     spf,
                     mx_cnames=mx_cnames,
                     mx_asns=mx_asns or None,
                     resolved_spf=spf_resolved or None,
                     autodiscover=autodiscover or None,
+                    domain=email_domain,
                 )
-                gateway = detect_gateway(mx)
+                provider = cls["provider"]
+                backend = cls.get("backend")
+                gateway = cls.get("gateway")
                 print(
                     f"  RESOLVED {ags:>8} {name:<30} "
                     f"email_domain={email_domain} -> {provider}"
@@ -253,15 +255,15 @@ async def run(data_path: Path) -> None:
                 mx_cnames = await resolve_mx_cnames(mx) if mx else {}
                 mx_asns = await resolve_mx_asns(mx) if mx else set()
                 autodiscover = await lookup_autodiscover(domain)
-                provider, backend = classify(
+                cls = classify(
                     mx,
                     spf,
                     mx_cnames=mx_cnames,
                     mx_asns=mx_asns or None,
                     resolved_spf=spf_resolved or None,
                     autodiscover=autodiscover or None,
+                    domain=domain,
                 )
-                gateway = detect_gateway(mx) if mx else None
                 return (
                     ags,
                     mx,
@@ -269,9 +271,9 @@ async def run(data_path: Path) -> None:
                     spf_resolved,
                     mx_cnames,
                     mx_asns,
-                    provider,
-                    backend,
-                    gateway,
+                    cls["provider"],
+                    cls.get("backend"),
+                    cls.get("gateway"),
                     autodiscover,
                 )
 
@@ -323,15 +325,18 @@ async def run(data_path: Path) -> None:
                 mx_cnames = await resolve_mx_cnames(mx)
                 mx_asns = await resolve_mx_asns(mx)
                 autodiscover = await lookup_autodiscover(m["domain"])
-                provider, backend = classify(
+                cls = classify(
                     mx,
                     spf,
                     mx_cnames=mx_cnames,
                     mx_asns=mx_asns or None,
                     resolved_spf=spf_resolved or None,
                     autodiscover=autodiscover or None,
+                    domain=m["domain"],
                 )
-                gateway = detect_gateway(mx)
+                provider = cls["provider"]
+                backend = cls.get("backend")
+                gateway = cls.get("gateway")
                 m["mx"] = mx
                 m["spf"] = spf
                 m["provider"] = provider

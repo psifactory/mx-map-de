@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 
 import httpx
 
-from mail_sovereignty.classify import classify, detect_gateway
+from mail_sovereignty.classify import classify
 from mail_sovereignty.constants import (
     CONCURRENCY,
     CONCURRENCY_WEBSITE,
@@ -248,16 +248,19 @@ async def scan_county(
             srv_records, dnssec, ipv6_mx = {}, False, False
 
         dkim_sels = [d["selector"] for d in dkim_results] if dkim_results else None
-        provider, backend = classify(
+        cls = classify(
             mx,
             spf,
             mx_cnames=mx_cnames,
             mx_asns=mx_asns or None,
             resolved_spf=spf_resolved or None,
             autodiscover=autodiscover or None,
+            domain=domain or None,
             dkim_selectors=dkim_sels,
         )
-        gateway = detect_gateway(mx) if mx else None
+        provider = cls["provider"]
+        backend = cls.get("backend")
+        gateway = cls.get("gateway")
         spf_strictness = detect_spf_strictness(spf)
 
         entry: dict[str, Any] = {
@@ -359,16 +362,19 @@ async def scan_municipality(
             srv_records, dnssec, ipv6_mx = {}, False, False
 
         dkim_sels = [d["selector"] for d in dkim_results] if dkim_results else None
-        provider, backend = classify(
+        cls = classify(
             mx,
             spf,
             mx_cnames=mx_cnames,
             mx_asns=mx_asns or None,
             resolved_spf=spf_resolved or None,
             autodiscover=autodiscover or None,
+            domain=domain or None,
             dkim_selectors=dkim_sels,
         )
-        gateway = detect_gateway(mx) if mx else None
+        provider = cls["provider"]
+        backend = cls.get("backend")
+        gateway = cls.get("gateway")
         spf_strictness = detect_spf_strictness(spf)
 
         entry: dict[str, Any] = {

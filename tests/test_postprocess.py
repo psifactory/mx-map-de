@@ -171,7 +171,7 @@ class TestProcessUnknown:
         ):
             result = await process_unknown(client, sem, m)
 
-        assert result["provider"] == "independent"
+        assert result["provider"] == "eigener-server"
 
     async def test_no_email_domains_found(self):
         m = {"ags": "99999999", "name": "Test", "domain": "test.de", "provider": "unknown"}

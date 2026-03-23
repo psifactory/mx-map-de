@@ -28,9 +28,21 @@ OPEN_XCHANGE_KEYWORDS = ["open-xchange"]
 
 KOMMUNAL_KEYWORDS = [
     "kvnbw.de", "rlp.de", "landsh.de", "bayern.de", "pzd-svn.de",
-    "mvnet.de", "kdo.de", "ekom21.de", "itebo.de", "regioit-aachen.de",
-    "sis-schwerin.de", "kommunale.it", "kdvz-frechen.de", "civitec.de",
-    "nol-is.de", "krz.de", "kgrz-ks.de",
+    "mvnet.de", "kdo.de", "ekom21.de", "itebo.de", "regioit",
+    "sis-schwerin", "kommunale.it", "kdvz", "civitec",
+    "nol-is", "krz.de", "kgrz",
+    "verwaltungsportal.de", "cm-system.de", "kdgoe.de", "rechennetz.de",
+    "kis-asp.de", "ennit.net", "owis365.de",
+]
+
+MANAGED_HOSTING_KEYWORDS = [
+    "agenturserver.de", "kasserver.com", "ispgateway.de", "all-inkl",
+    "goneo.de", "udag.de", "next-go.net", "one.com", "kraemer-it",
+    "ktk.de", "secureserver.net", "rzone.de",
+]
+
+WEBSITE_BUILDER_KEYWORDS = [
+    "jimdo.com", "wix.com", "squarespace", "weebly",
 ]
 
 VISIBLE_GATEWAYS = {

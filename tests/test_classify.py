@@ -14,43 +14,55 @@ from mail_sovereignty.classify import (
 
 class TestClassify:
     def test_microsoft_mx(self):
-        assert classify(["koeln-de.mail.protection.outlook.com"], "") == ("microsoft", None)
+        assert classify(["koeln-de.mail.protection.outlook.com"], "") == {"provider": "microsoft"}
 
     def test_google_mx(self):
         assert (
-            classify(["aspmx.l.google.com", "alt1.aspmx.l.google.com"], "") == ("google", None)
+            classify(["aspmx.l.google.com", "alt1.aspmx.l.google.com"], "") == {"provider": "google"}
         )
 
     def test_ionos_mx(self):
-        assert classify(["mx01.kundenserver.de"], "") == ("ionos", None)
+        assert classify(["mx01.kundenserver.de"], "") == {"provider": "ionos"}
 
     def test_strato_mx(self):
-        assert classify(["smtp.strato.de"], "") == ("strato", None)
+        assert classify(["smtp.strato.de"], "") == {"provider": "strato"}
 
     def test_hetzner_mx(self):
-        assert classify(["mail.your-server.de"], "") == ("hetzner", None)
+        assert classify(["mail.your-server.de"], "") == {"provider": "hetzner"}
 
     def test_aws_mx(self):
-        assert classify(["inbound-smtp.us-east-1.amazonaws.com"], "") == ("aws", None)
+        assert classify(["inbound-smtp.us-east-1.amazonaws.com"], "") == {"provider": "aws"}
 
-    def test_independent_mx(self):
-        assert classify(["mail.example.de"], "") == ("independent", None)
+    def test_sonstige_mx(self):
+        assert classify(["mail.example.de"], "") == {"provider": "sonstige"}
+
+    def test_eigener_server_mx(self):
+        result = classify(["mail.gemeinde.de"], "", domain="gemeinde.de")
+        assert result == {"provider": "eigener-server"}
+
+    def test_managed_hosting_mx(self):
+        result = classify(["mail.kasserver.com"], "")
+        assert result == {"provider": "managed-hosting"}
+
+    def test_website_builder_mx(self):
+        result = classify(["mx.jimdo.com"], "")
+        assert result == {"provider": "website-builder"}
 
     def test_spf_fallback_when_no_mx(self):
         assert (
             classify([], "v=spf1 include:spf.protection.outlook.com -all")
-            == ("microsoft", None)
+            == {"provider": "microsoft"}
         )
 
     def test_no_mx_no_spf(self):
-        assert classify([], "") == ("unknown", None)
+        assert classify([], "") == {"provider": "unknown"}
 
     def test_mx_takes_precedence_over_spf(self):
         result = classify(
             ["mail.example.de"],
             "v=spf1 include:spf.protection.outlook.com -all",
         )
-        assert result == ("independent", None)
+        assert result == {"provider": "sonstige"}
 
     def test_cname_detects_microsoft(self):
         result = classify(
@@ -58,13 +70,13 @@ class TestClassify:
             "",
             mx_cnames={"mail.example.de": "mail.protection.outlook.com"},
         )
-        assert result == ("microsoft", None)
+        assert result == {"provider": "microsoft"}
 
-    def test_cname_none_stays_independent(self):
-        assert classify(["mail.example.de"], "", mx_cnames=None) == ("independent", None)
+    def test_cname_none_stays_sonstige(self):
+        assert classify(["mail.example.de"], "", mx_cnames=None) == {"provider": "sonstige"}
 
-    def test_cname_empty_stays_independent(self):
-        assert classify(["mail.example.de"], "", mx_cnames={}) == ("independent", None)
+    def test_cname_empty_stays_sonstige(self):
+        assert classify(["mail.example.de"], "", mx_cnames={}) == {"provider": "sonstige"}
 
     def test_german_isp_asn(self):
         result = classify(
@@ -72,7 +84,7 @@ class TestClassify:
             "",
             mx_asns={3320},
         )
-        assert result == ("german-isp", None)
+        assert result == {"provider": "german-isp"}
 
     def test_german_isp_with_autodiscover_microsoft(self):
         result = classify(
@@ -81,7 +93,7 @@ class TestClassify:
             mx_asns={3320},
             autodiscover={"autodiscover_cname": "autodiscover.outlook.com"},
         )
-        assert result == ("microsoft", None)
+        assert result == {"provider": "microsoft"}
 
     def test_german_isp_without_autodiscover_stays_german_isp(self):
         result = classify(
@@ -90,21 +102,23 @@ class TestClassify:
             mx_asns={3320},
             autodiscover=None,
         )
-        assert result == ("german-isp", None)
+        assert result == {"provider": "german-isp"}
 
     def test_seppmail_gateway_with_microsoft_spf(self):
         result = classify(
             ["customer.seppmail.cloud"],
             "v=spf1 include:spf.protection.outlook.com -all",
         )
-        assert result == ("microsoft", None)
+        assert result["provider"] == "microsoft"
+        assert result["gateway"] == "seppmail"
 
-    def test_gateway_no_hyperscaler_spf_stays_independent(self):
+    def test_gateway_no_hyperscaler_spf_stays_sonstige(self):
         result = classify(
             ["filter.seppmail.cloud"],
             "v=spf1 ip4:1.2.3.4 -all",
         )
-        assert result == ("independent", None)
+        assert result["provider"] == "sonstige"
+        assert result["gateway"] == "seppmail"
 
     def test_gateway_autodiscover_reveals_microsoft(self):
         """Hornetsecurity is a visible gateway, so it becomes the provider with MS backend."""
@@ -113,7 +127,8 @@ class TestClassify:
             "v=spf1 ip4:1.2.3.4 -all",
             autodiscover={"autodiscover_cname": "autodiscover.outlook.com"},
         )
-        assert result == ("hornetsecurity", None)
+        assert result["provider"] == "hornetsecurity"
+        assert result["gateway"] == "hornetsecurity"
 
     def test_non_gateway_independent_uses_autodiscover_fallback(self):
         result = classify(
@@ -121,15 +136,15 @@ class TestClassify:
             "",
             autodiscover={"autodiscover_cname": "autodiscover.outlook.com"},
         )
-        assert result == ("microsoft", None)
+        assert result == {"provider": "microsoft"}
 
-    def test_non_gateway_independent_no_autodiscover_stays_independent(self):
+    def test_non_gateway_independent_no_autodiscover_stays_sonstige(self):
         result = classify(
             ["mail.example.de"],
             "",
             autodiscover=None,
         )
-        assert result == ("independent", None)
+        assert result == {"provider": "sonstige"}
 
     def test_spf_only_resolved_fallback(self):
         result = classify(
@@ -137,7 +152,7 @@ class TestClassify:
             "v=spf1 include:custom.de -all",
             resolved_spf="v=spf1 include:custom.de -all v=spf1 include:spf.protection.outlook.com -all",
         )
-        assert result == ("microsoft", None)
+        assert result == {"provider": "microsoft"}
 
     def test_spf_only_no_resolved_stays_unknown(self):
         result = classify(
@@ -145,20 +160,21 @@ class TestClassify:
             "v=spf1 ip4:1.2.3.4 -all",
             resolved_spf=None,
         )
-        assert result == ("unknown", None)
+        assert result == {"provider": "unknown"}
 
     # ── New: kommunal / gateway / backend tests ──
 
     def test_kommunal_mx(self):
         result = classify(["mail.ekom21.de"], "")
-        assert result == ("kommunal", None)
+        assert result == {"provider": "kommunal"}
 
     def test_kommunal_with_ms365_backend_spf(self):
         result = classify(
             ["mail.kvnbw.de"],
             "v=spf1 include:spf.protection.outlook.com -all",
         )
-        assert result == ("kommunal", "microsoft")
+        assert result["provider"] == "kommunal"
+        assert result["backend"] == "microsoft"
 
     def test_kommunal_with_ms365_backend_dkim(self):
         result = classify(
@@ -166,35 +182,41 @@ class TestClassify:
             "",
             dkim_selectors=["selector1", "selector2"],
         )
-        assert result == ("kommunal", "microsoft")
+        assert result["provider"] == "kommunal"
+        assert result["backend"] == "microsoft"
 
     def test_hornetsecurity_visible_gateway(self):
         result = classify(
             ["mx01.hornetsecurity.com"],
             "v=spf1 ip4:1.2.3.4 -all",
         )
-        assert result == ("hornetsecurity", None)
+        assert result["provider"] == "hornetsecurity"
+        assert result["gateway"] == "hornetsecurity"
 
     def test_hornetsecurity_with_ms365_backend(self):
         result = classify(
             ["mx01.hornetsecurity.com"],
             "v=spf1 include:spf.protection.outlook.com -all",
         )
-        assert result == ("hornetsecurity", "microsoft")
+        assert result["provider"] == "hornetsecurity"
+        assert result["backend"] == "microsoft"
+        assert result["gateway"] == "hornetsecurity"
 
     def test_sophos_visible_gateway(self):
         result = classify(
             ["mx.hydra.sophos.com"],
             "",
         )
-        assert result == ("sophos", None)
+        assert result["provider"] == "sophos"
+        assert result["gateway"] == "sophos"
 
     def test_barracuda_visible_gateway(self):
         result = classify(
             ["mx.barracudanetworks.com"],
             "",
         )
-        assert result == ("barracuda", None)
+        assert result["provider"] == "barracuda"
+        assert result["gateway"] == "barracuda"
 
     def test_barracuda_with_ms365_dkim(self):
         result = classify(
@@ -202,28 +224,43 @@ class TestClassify:
             "",
             dkim_selectors=["selector1", "selector2", "default"],
         )
-        assert result == ("barracuda", "microsoft")
+        assert result["provider"] == "barracuda"
+        assert result["backend"] == "microsoft"
+        assert result["gateway"] == "barracuda"
 
     def test_mimecast_visible_gateway(self):
         result = classify(
             ["eu.mimecast.com"],
             "",
         )
-        assert result == ("mimecast", None)
+        assert result["provider"] == "mimecast"
+        assert result["gateway"] == "mimecast"
 
     def test_antispameurope_visible_gateway(self):
         result = classify(
             ["mx.antispameurope.com"],
             "",
         )
-        assert result == ("antispameurope", None)
+        assert result["provider"] == "antispameurope"
+        assert result["gateway"] == "antispameurope"
 
     def test_proofpoint_visible_gateway(self):
         result = classify(
             ["mx.ppe-hosted.com"],
             "",
         )
-        assert result == ("proofpoint", None)
+        assert result["provider"] == "proofpoint"
+        assert result["gateway"] == "proofpoint"
+
+    # ── New sub-classification tests ──
+
+    def test_kommunal_extended_keywords(self):
+        result = classify(["mail.verwaltungsportal.de"], "")
+        assert result["provider"] == "kommunal"
+
+    def test_kommunal_regioit_short(self):
+        result = classify(["mail.regioit-aachen.de"], "")
+        assert result["provider"] == "kommunal"
 
 
 # ── classify_from_autodiscover() ────────────────────────────────────
@@ -313,7 +350,7 @@ class TestSpfMentionsProviders:
         assert result == {"microsoft"}
 
     def test_foreign_sender_not_in_classify(self):
-        assert classify([], "v=spf1 include:spf.mandrillapp.com -all") == ("unknown", None)
+        assert classify([], "v=spf1 include:spf.mandrillapp.com -all") == {"provider": "unknown"}
 
 
 # ── classify_from_smtp_banner() ────────────────────────────────────

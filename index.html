@@ -212,13 +212,13 @@
     <span class="tagline">E-Mail-Provider deutscher Gemeinden</span>
   </div>
   <div class="header-right">
-<a href="/impressum.html" class="header-link">Impressum</a>
+<a href="https://ex4.eu" target="_blank" class="header-link" style="display:inline-flex;align-items:center;gap:3px"><span style="display:inline-block;line-height:0;border-radius:1px;overflow:hidden;"><span style="display:block;width:12px;height:8px;background:#003399;position:relative;"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#FFCC00;font-size:6px;line-height:1">★</span></span></span>EX4.eu</a>
+    <a href="/impressum.html" class="header-link">Impressum</a>
     <a href="/datenschutz.html" class="header-link">Datenschutz</a>
-    <button class="toggle-info" id="toggle-info" aria-expanded="true" aria-controls="info-bar">Info &#9652;</button>
+    <button class="toggle-info" id="toggle-info" aria-expanded="false" aria-controls="info-bar">Info &#9662;</button>
   </div>
 </header>
-<section id="info-bar" aria-label="Informationen zum Projekt">
-<script>if(window.innerWidth<=600)document.getElementById('info-bar').classList.add('collapsed');</script>
+<section id="info-bar" class="collapsed" aria-label="Informationen zum Projekt">
   <h2 class="info-title">E-Mail-Provider deutscher Gemeinden</h2>
   <div class="info-grid">
     <div class="info-card">
@@ -250,50 +250,56 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 var COLORS = {
-  microsoft:      '#E83838',
-  google:         '#FFAB96',
-  aws:            '#FF7A5C',
-  kommunal:       '#4A90D9',
-  ionos:          '#78FFD6',
-  strato:         '#2EDBA8',
-  hetzner:        '#10B898',
-  telekom:        '#0D9373',
-  posteo:         '#4ECDC4',
-  'mailbox.org':  '#36B5A0',
-  tutanota:       '#88D8B0',
-  'open-xchange': '#6CC4A1',
-  'german-isp':   '#2DB87F',
-  'independent':  '#1A9E6E',
-  hornetsecurity: '#FF6B35',
-  sophos:         '#1E3A5F',
-  barracuda:      '#00B4D8',
-  proofpoint:     '#E67E22',
-  antispameurope: '#9B59B6',
-  mimecast:       '#27AE60',
-  unknown:        '#BFBFBF'
+  microsoft:         '#E83838',
+  google:            '#FFAB96',
+  aws:               '#FF7A5C',
+  kommunal:          '#4A90D9',
+  ionos:             '#78FFD6',
+  strato:            '#2EDBA8',
+  hetzner:           '#10B898',
+  telekom:           '#0D9373',
+  posteo:            '#4ECDC4',
+  'mailbox.org':     '#36B5A0',
+  tutanota:          '#88D8B0',
+  'open-xchange':    '#6CC4A1',
+  'german-isp':      '#2DB87F',
+  'managed-hosting': '#94a3b8',
+  'website-builder': '#f472b6',
+  'eigener-server':  '#a78bfa',
+  sonstige:          '#d1d5db',
+  hornetsecurity:    '#FF6B35',
+  sophos:            '#1E3A5F',
+  barracuda:         '#00B4D8',
+  proofpoint:        '#E67E22',
+  antispameurope:    '#9B59B6',
+  mimecast:          '#27AE60',
+  unknown:           '#BFBFBF'
 };
 var LABELS = {
-  microsoft:      'Microsoft 365',
-  google:         'Google Workspace',
-  aws:            'Amazon Web Services',
-  kommunal:       'Kommunales RZ',
-  ionos:          'IONOS / 1&1',
-  strato:         'Strato',
-  hetzner:        'Hetzner',
-  telekom:        'Telekom',
-  posteo:         'Posteo',
-  'mailbox.org':  'mailbox.org',
-  tutanota:       'Tuta (Tutanota)',
-  'open-xchange': 'Open-Xchange',
-  'german-isp':   'Deutscher ISP',
-  'independent':  'Eigenständig',
-  hornetsecurity: 'Hornetsecurity',
-  sophos:         'Sophos',
-  barracuda:      'Barracuda',
-  proofpoint:     'Proofpoint',
-  antispameurope: 'AntiSpam Europe',
-  mimecast:       'Mimecast',
-  unknown:        'Unbekannt'
+  microsoft:         'Microsoft 365',
+  google:            'Google Workspace',
+  aws:               'Amazon Web Services',
+  kommunal:          'Kommunales RZ',
+  ionos:             'IONOS / 1&1',
+  strato:            'Strato',
+  hetzner:           'Hetzner',
+  telekom:           'Telekom',
+  posteo:            'Posteo',
+  'mailbox.org':     'mailbox.org',
+  tutanota:          'Tuta (Tutanota)',
+  'open-xchange':    'Open-Xchange',
+  'german-isp':      'Deutscher ISP',
+  'managed-hosting': 'Managed Hosting',
+  'website-builder': 'Website-Baukasten',
+  'eigener-server':  'Eigener Server',
+  sonstige:          'Sonstige',
+  hornetsecurity:    'Hornetsecurity',
+  sophos:            'Sophos',
+  barracuda:         'Barracuda',
+  proofpoint:        'Proofpoint',
+  antispameurope:    'AntiSpam Europe',
+  mimecast:          'Mimecast',
+  unknown:           'Unbekannt'
 };
 var BACKEND_LABELS = {
   microsoft: 'Microsoft 365'
@@ -359,6 +365,27 @@ var TRACKER_LABELS = {
   'keine-tracker': 'Keine Tracker'
 };
 
+var GATEWAY_COLORS = {
+  'hornetsecurity': '#FF6B35',
+  'sophos': '#1E3A5F',
+  'barracuda': '#00B4D8',
+  'nospamproxy': '#9B59B6',
+  'antispameurope': '#6366f1',
+  'secure-mailgate': '#14b8a6',
+  'sonstige-gateway': '#f59e0b',
+  'kein-gateway': '#e5e7eb'
+};
+var GATEWAY_LABELS = {
+  'hornetsecurity': 'Hornetsecurity',
+  'sophos': 'Sophos',
+  'barracuda': 'Barracuda',
+  'nospamproxy': 'NoSpamProxy',
+  'antispameurope': 'AntiSpam Europe',
+  'secure-mailgate': 'Secure-Mailgate',
+  'sonstige-gateway': 'Sonstiges Gateway',
+  'kein-gateway': 'Kein Gateway'
+};
+
 var US_HOSTING_ASNS = ['aws', 'google-cloud', 'azure', 'cloudflare'];
 var DE_HOSTING = ['hetzner', 'ionos', 'strato', 'netcup', 'all-inkl', 'mittwald', 'host-europe', 'telekom', 'contabo'];
 
@@ -408,9 +435,22 @@ function getTrackerLevel(m) {
   return 'sonstige';
 }
 
+function getGatewayLevel(m) {
+  if (!m || !m.gateway) return 'kein-gateway';
+  var gw = m.gateway.toLowerCase();
+  if (gw === 'hornetsecurity') return 'hornetsecurity';
+  if (gw === 'sophos') return 'sophos';
+  if (gw === 'barracuda') return 'barracuda';
+  if (gw === 'nospamproxy') return 'nospamproxy';
+  if (gw === 'antispameurope') return 'antispameurope';
+  if (gw.indexOf('secure-mailgate') >= 0 || gw.indexOf('seppmail') >= 0) return 'secure-mailgate';
+  return 'sonstige-gateway';
+}
+
 function getThemeColor(m, theme) {
   if (theme === 'provider') return COLORS[m ? m.provider : 'unknown'] || COLORS.unknown;
   if (theme === 'security') return SECURITY_COLORS[getSecurityLevel(m)] || '#ddd';
+  if (theme === 'gateway') return GATEWAY_COLORS[getGatewayLevel(m)] || '#ddd';
   if (theme === 'sovereignty') return SOVEREIGNTY_COLORS[getSovereigntyLevel(m)] || '#ddd';
   if (theme === 'hosting') return HOSTING_COLORS[getHostingLevel(m)] || '#ddd';
   if (theme === 'tracker') return TRACKER_COLORS[getTrackerLevel(m)] || '#ddd';
@@ -420,6 +460,7 @@ function getThemeColor(m, theme) {
 function getThemeCategory(m, theme) {
   if (theme === 'provider') return m ? m.provider : 'unknown';
   if (theme === 'security') return getSecurityLevel(m);
+  if (theme === 'gateway') return getGatewayLevel(m);
   if (theme === 'sovereignty') return getSovereigntyLevel(m);
   if (theme === 'hosting') return getHostingLevel(m);
   if (theme === 'tracker') return getTrackerLevel(m);
@@ -604,8 +645,9 @@ function updateLegend(counts) {
   content.innerHTML =
     '<strong>E-Mail-Provider</strong>' +
     legendGroupHtml('US-basiert', ['microsoft', 'aws', 'google'], counts) +
-    legendGroupHtml('Deutsch / Öffentlich', ['kommunal', 'independent', 'german-isp', 'ionos', 'strato', 'hetzner', 'telekom'], counts) +
-    legendGroupHtml('Gateway', ['hornetsecurity', 'sophos', 'barracuda', 'proofpoint', 'antispameurope', 'mimecast'], counts);
+    legendGroupHtml('Deutsch / Öffentlich', ['kommunal', 'german-isp', 'ionos', 'strato', 'hetzner', 'telekom'], counts) +
+    legendGroupHtml('Selbst / Sonstige', ['eigener-server', 'managed-hosting', 'website-builder', 'sonstige'], counts) +
+    legendGroupHtml('Sonstige', ['unknown'], counts);
 }
 
 function genericLegendItemHtml(key, label, color, count) {
@@ -618,12 +660,15 @@ function updateThemeLegend(counts) {
 
   if (currentTheme === 'provider') {
     updateLegend(counts);
+  if (typeof switchTheme === 'function') switchTheme('provider');
     return;
   }
 
   var colorsMap, labelsMap, title;
   if (currentTheme === 'security') {
     colorsMap = SECURITY_COLORS; labelsMap = SECURITY_LABELS; title = 'Security Level';
+  } else if (currentTheme === 'gateway') {
+    colorsMap = GATEWAY_COLORS; labelsMap = GATEWAY_LABELS; title = 'E-Mail-Gateway';
   } else if (currentTheme === 'sovereignty') {
     colorsMap = SOVEREIGNTY_COLORS; labelsMap = SOVEREIGNTY_LABELS; title = 'Souveränität';
   } else if (currentTheme === 'hosting') {
@@ -632,6 +677,7 @@ function updateThemeLegend(counts) {
     colorsMap = TRACKER_COLORS; labelsMap = TRACKER_LABELS; title = 'Analytics/Tracker';
   } else {
     updateLegend(counts);
+  if (typeof switchTheme === 'function') switchTheme('provider');
     return;
   }
 
@@ -995,6 +1041,7 @@ function switchToLandkreise() {
 
   if (lanLayer) lanLayer.bringToFront();
   updateLegend(counts);
+  if (typeof switchTheme === 'function') switchTheme('provider');
 }
 
 async function loadData() {
@@ -1029,8 +1076,9 @@ async function loadData() {
       '<button class="legend-toggle" aria-label="Legende umschalten" aria-expanded="' + (!isMobile) + '">' + (isMobile ? 'Legende \u25B8' : '') + '</button>' +
       '<div class="legend-content">' +
       '<strong>E-Mail-Provider</strong>' +
-      legendGroupHtml('US-basiert', ['microsoft', 'aws', 'google'], dnsData.counts) +
-      legendGroupHtml('Deutsch', ['independent', 'german-isp', 'ionos', 'strato', 'hetzner', 'telekom'], dnsData.counts) +
+      legendGroupHtml('US-Cloud', ['microsoft', 'aws', 'google'], dnsData.counts) +
+      legendGroupHtml('Deutsch / Öffentlich', ['kommunal', 'german-isp', 'ionos', 'strato', 'hetzner', 'telekom'], dnsData.counts) +
+      legendGroupHtml('Selbst / Sonstige', ['eigener-server', 'managed-hosting', 'website-builder', 'sonstige'], dnsData.counts) +
       '</div>';
     L.DomEvent.disableClickPropagation(div);
     return div;
@@ -1044,7 +1092,7 @@ async function loadData() {
     var div = L.DomUtil.create('div', 'map-filters');
     div.innerHTML =
       '<div class="filter-tabs">' +
-        '<button class="filter-tab active" data-tab="provider" title="Provider">&#128231;</button>' +
+        '<button class="filter-tab active" data-tab="provider" title="E-Mail">&#128231;</button>' +
         '<button class="filter-tab" data-tab="security" title="Security">&#128737;&#65039;</button>' +
         '<button class="filter-tab" data-tab="gateway" title="Gateway">&#128274;</button>' +
         '<button class="filter-tab" data-tab="sovereignty" title="Souveränität">&#127757;</button>' +
@@ -1053,7 +1101,7 @@ async function loadData() {
       '</div>' +
 
       '<div id="panel-provider" class="filter-panel active">' +
-        '<label>Provider</label>' +
+        '<label>E-Mail</label>' +
         '<select id="filter-provider"><option value="">Alle</option></select>' +
       '</div>' +
 
@@ -1258,11 +1306,12 @@ async function loadData() {
   themeCtrl.onAdd = function() {
     var div = L.DomUtil.create('div', 'theme-tabs');
     div.innerHTML =
-      '<button class="theme-tab active" data-theme="provider" title="E-Mail Provider">&#128231; Provider</button>' +
-      '<button class="theme-tab" data-theme="security" title="Security Level">&#128737;&#65039; Security</button>' +
-      '<button class="theme-tab" data-theme="sovereignty" title="Souveränität">&#127757; Souveränität</button>' +
-      '<button class="theme-tab" data-theme="hosting" title="Website Hosting">&#127760; Hosting</button>' +
-      '<button class="theme-tab" data-theme="tracker" title="Analytics/Tracker">&#128202; Tracker</button>';
+      '<button class="theme-tab active" data-theme="provider" title="E-Mail Provider"><i class="ti ti-mail"></i> E-Mail</button>' +
+      '<button class="theme-tab" data-theme="security" title="Mail Security"><i class="ti ti-shield-check"></i> Security</button>' +
+      '<button class="theme-tab" data-theme="gateway" title="Mail Gateway"><i class="ti ti-filter"></i> Gateway</button>' +
+      '<button class="theme-tab" data-theme="sovereignty" title="Souveränität"><i class="ti ti-world"></i> Souveränität</button>' +
+      '<button class="theme-tab" data-theme="hosting" title="Website Hosting"><i class="ti ti-server"></i> Hosting</button>' +
+      '<button class="theme-tab" data-theme="tracker" title="Analytics/Tracker"><i class="ti ti-chart-bar"></i> Tracker</button>';
     L.DomEvent.disableClickPropagation(div);
     return div;
   };

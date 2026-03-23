@@ -195,7 +195,7 @@ class TestScanMunicipality:
         ):
             result = await scan_municipality(m, sem)
 
-        assert result["provider"] == "independent"
+        assert result["provider"] == "eigener-server"
         assert result["domain"] == "berlin.de"
 
     async def test_no_mx_unknown(self):
