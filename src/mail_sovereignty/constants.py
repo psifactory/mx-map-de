@@ -26,6 +26,18 @@ MAILBOX_ORG_KEYWORDS = ["mailbox.org"]
 TUTANOTA_KEYWORDS = ["tutanota", "tutamail", "tuta.io"]
 OPEN_XCHANGE_KEYWORDS = ["open-xchange"]
 
+KOMMUNAL_KEYWORDS = [
+    "kvnbw.de", "rlp.de", "landsh.de", "bayern.de", "pzd-svn.de",
+    "mvnet.de", "kdo.de", "ekom21.de", "itebo.de", "regioit-aachen.de",
+    "sis-schwerin.de", "kommunale.it", "kdvz-frechen.de", "civitec.de",
+    "nol-is.de", "krz.de", "kgrz-ks.de",
+]
+
+VISIBLE_GATEWAYS = {
+    "hornetsecurity", "sophos", "barracuda", "proofpoint",
+    "antispameurope", "mimecast",
+}
+
 PROVIDER_KEYWORDS = {
     "microsoft": MICROSOFT_KEYWORDS,
     "google": GOOGLE_KEYWORDS,
@@ -75,6 +87,27 @@ SELECT ?item ?itemLabel ?ags ?website ?stateLabel ?coord WHERE {
 ORDER BY ?ags
 """
 
+SPARQL_QUERY_COUNTIES = """
+SELECT ?item ?itemLabel ?ags ?website ?stateLabel ?coord ?typeLabel WHERE {
+  VALUES ?type { wd:Q106658 wd:Q22865 }
+  ?item wdt:P31/wdt:P279* ?type .
+  ?item wdt:P440 ?ags .                   # district key (Kreisschlüssel)
+  FILTER NOT EXISTS {
+    ?item wdt:P576 ?dissolved .
+    FILTER(?dissolved <= NOW())
+  }
+  FILTER NOT EXISTS {
+    ?item wdt:P1366 ?successor .
+  }
+  OPTIONAL { ?item wdt:P856 ?website . }
+  OPTIONAL { ?item wdt:P131 ?state .
+             ?state wdt:P31 wd:Q1221156 . }
+  OPTIONAL { ?item wdt:P625 ?coord . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "de,en" . }
+}
+ORDER BY ?ags
+"""
+
 EMAIL_RE = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
 TYPO3_RE = re.compile(r"linkTo_UnCryptMailto\(['\"]([^'\"]+)['\"]")
 SKIP_DOMAINS = {
@@ -108,11 +141,12 @@ GATEWAY_KEYWORDS = {
     "barracuda": ["barracudanetworks.com", "barracuda.com"],
     "trendmicro": ["tmes.trendmicro.eu", "tmes.trendmicro.com"],
     "hornetsecurity": ["hornetsecurity.com"],
-    "proofpoint": ["ppe-hosted.com"],
-    "sophos": ["hydra.sophos.com"],
+    "proofpoint": ["ppe-hosted.com", "proofpoint.com"],
+    "sophos": ["hydra.sophos.com", "sophos.com"],
     "mimecast": ["mimecast.com"],
     "retarus": ["retarus.com", "retarus.de"],
     "nospamproxy": ["nospamproxy"],
+    "antispameurope": ["antispameurope.com"],
 }
 
 GERMAN_ISP_ASNS: dict[int, str] = {
@@ -131,9 +165,105 @@ GERMAN_ISP_ASNS: dict[int, str] = {
     197540: "netcup",
 }
 
+DKIM_SELECTORS = [
+    "google",
+    "selector1",
+    "selector2",
+    "default",
+    "dkim",
+    "s1",
+    "s2",
+    "k1",
+    "mail",
+    "mta",
+]
+
 CONCURRENCY = 20
 CONCURRENCY_POSTPROCESS = 10
 CONCURRENCY_SMTP = 5
+CONCURRENCY_WEBSITE = 20
+
+# --- Website Hosting Provider ASN mapping ---
+HOSTING_PROVIDER_ASNS: dict[int, str] = {
+    13335: "cloudflare",
+    16509: "aws",
+    14618: "aws",
+    15169: "google-cloud",
+    396982: "google-cloud",
+    8075: "azure",
+    8068: "azure",
+    16276: "ovh",
+    24940: "hetzner",
+    12897: "hetzner",
+    8560: "ionos",
+    6724: "strato",
+    29551: "strato",
+    197540: "netcup",
+    35366: "all-inkl",
+    34788: "mittwald",
+    8972: "host-europe",
+    3320: "telekom",
+    51167: "contabo",
+}
+
+HOSTING_PROVIDER_LABELS: dict[str, str] = {
+    "cloudflare": "Cloudflare",
+    "aws": "AWS",
+    "google-cloud": "Google Cloud",
+    "azure": "Azure",
+    "ovh": "OVH",
+    "hetzner": "Hetzner",
+    "ionos": "IONOS",
+    "strato": "Strato",
+    "netcup": "netcup",
+    "all-inkl": "ALL-INKL",
+    "mittwald": "Mittwald",
+    "host-europe": "Host Europe",
+    "telekom": "Telekom",
+    "contabo": "Contabo",
+    "kommunal-rz": "Kommunales RZ",
+}
+
+# --- CMS Detection Patterns ---
+CMS_HEADER_PATTERNS: dict[str, list[str]] = {
+    "wordpress": ["wordpress"],
+    "typo3": ["typo3"],
+    "joomla": ["joomla"],
+    "drupal": ["drupal"],
+    "jimdo": ["jimdo"],
+    "wix": ["wix"],
+    "squarespace": ["squarespace"],
+    "shopify": ["shopify"],
+}
+
+CMS_URL_PATTERNS: dict[str, list[str]] = {
+    "wordpress": ["/wp-content/", "/wp-includes/", "/wp-json/"],
+    "typo3": ["/typo3conf/", "/typo3temp/", "/typo3/"],
+    "joomla": ["/components/com_", "/media/jui/"],
+    "drupal": ["/sites/default/files/", "/core/misc/drupal"],
+}
+
+# --- Analytics/Tracker Detection Patterns ---
+TRACKER_PATTERNS: dict[str, list[str]] = {
+    "google-analytics": [
+        "googletagmanager.com", "google-analytics.com",
+        "gtag(", "UA-", "G-", "ga('send",
+    ],
+    "google-tag-manager": ["googletagmanager.com/gtm.js"],
+    "facebook-pixel": ["connect.facebook.net", "fbq("],
+    "matomo": ["matomo.js", "matomo.php", "piwik.js", "piwik.php"],
+    "plausible": ["plausible.io"],
+    "etracker": ["etracker.com", "etracker.de"],
+}
+
+# --- Cookie Consent Detection Patterns ---
+CONSENT_PATTERNS: dict[str, list[str]] = {
+    "cookiebot": ["cookiebot.com", "CookieConsent"],
+    "usercentrics": ["usercentrics.eu", "usercentrics.com"],
+    "borlabs": ["borlabs-cookie", "BorlabsCookie"],
+    "onetrust": ["onetrust.com", "optanon"],
+    "klaro": ["klaro.js", "klaro.kiprotect"],
+}
 
 SMTP_BANNER_KEYWORDS = {
     "microsoft": [

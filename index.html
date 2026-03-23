@@ -40,22 +40,17 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
   #header {
-    background: #1a1a2e; color: #fff; height: 44px; padding: 0 16px;
+    background: #1a1a2e; color: #fff; min-height: 44px; padding: 0 16px;
     display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    flex-wrap: wrap; gap: 4px 0;
   }
   .header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
   .brand { font-size: 17px; font-weight: 700; white-space: nowrap; margin: 0; }
-  .beta-badge {
-    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
-    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
-    color: #f0c040; padding: 1px 6px; border-radius: 3px; vertical-align: middle;
-    cursor: default;
-  }
   .separator { color: #555; font-size: 15px; }
   .tagline { color: #a0a0b0; font-size: 13px; white-space: nowrap; }
   .header-link { color: #a0a0b0; font-size: 12px; text-decoration: none; }
   .header-link:hover { color: #fff; }
-  .header-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
   .updated { font-size: 11px; color: #888; }
   .toggle-info {
     background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
@@ -63,6 +58,7 @@
     white-space: nowrap;
   }
   .toggle-info:hover { background: rgba(255,255,255,0.25); color: #fff; }
+
   #info-bar {
     background: #f8f9fb; border-bottom: 1px solid #e2e4e8; overflow: hidden; flex-shrink: 0;
     max-height: 600px;
@@ -113,7 +109,7 @@
     letter-spacing: 0.5px; margin-bottom: 2px; font-weight: 600;
   }
   .popup-section-hint { font-weight: 400; opacity: 0.7; }
-  .dns-table { border-collapse: collapse; }
+  
   .dns-table td { padding: 1px 8px 1px 0; vertical-align: baseline; font-size: 12px; white-space: nowrap; }
   .dns-table .dn { font-weight: 600; }
   .dns-table .host { color: #999; font-size: 11px; font-family: ui-monospace, monospace; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
@@ -128,18 +124,95 @@
   .legend-group { margin-top: 8px; }
   .legend-group:first-child { margin-top: 4px; }
   .legend-group-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 600; display: block; margin-bottom: 2px; }
+
+  .map-filters {
+    background: #fff; border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 12px; min-width: 200px;
+    max-width: 240px; max-height: calc(100vh - 120px); overflow-y: auto;
+  }
+  .filter-tabs {
+    display: flex; flex-wrap: wrap; border-bottom: 1px solid #e2e4e8;
+    background: #f8f9fb; border-radius: 6px 6px 0 0;
+  }
+  .filter-tab {
+    flex: 1; min-width: 0; padding: 6px 4px; border: none; background: none;
+    font-size: 11px; cursor: pointer; text-align: center; color: #888;
+    border-bottom: 2px solid transparent; white-space: nowrap;
+  }
+  .filter-tab:hover { color: #333; background: rgba(0,0,0,0.03); }
+  .filter-tab.active { color: #1a1a2e; border-bottom-color: #1a1a2e; font-weight: 600; }
+  .filter-panel { display: none; padding: 8px 10px; }
+  .filter-panel.active { display: block; }
+  .map-filters select {
+    display: block; width: 100%; padding: 4px 6px; margin: 4px 0;
+    border: 1px solid #ccc; border-radius: 3px; font-size: 12px;
+    background: #fff; color: #333; cursor: pointer;
+  }
+  .map-filters select:disabled { opacity: 0.4; }
+  .map-filters label { font-weight: 600; color: #555; font-size: 11px; margin-top: 6px; display: block; }
+  .map-filters label:first-child { margin-top: 0; }
+  .filter-toggle-row {
+    display: flex; align-items: center; gap: 6px; padding: 3px 0;
+  }
+  .filter-toggle-row input[type="checkbox"] { margin: 0; cursor: pointer; }
+  .filter-toggle-row label { margin: 0; font-weight: 400; font-size: 12px; color: #333; cursor: pointer; }
+  .filter-reset {
+    display: block; width: 100%; margin-top: 6px; padding: 4px; border: none;
+    background: #f0f0f0; border-radius: 3px; font-size: 11px; color: #666;
+    cursor: pointer; text-align: center;
+  }
+  .filter-reset:hover { background: #e0e0e0; color: #333; }
+  .filter-count { font-size: 10px; color: #999; margin-top: 4px; }
+
+  .view-toggle {
+    background: #fff; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    display: flex; overflow: hidden; font-size: 12px; font-weight: 600;
+  }
+  .view-toggle button {
+    border: none; background: #f0f0f0; color: #666; padding: 6px 12px;
+    cursor: pointer; font-size: 12px; font-weight: 600; white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+  .view-toggle button:first-child { border-right: 1px solid #ddd; }
+  .view-toggle button.active { background: #1a1a2e; color: #fff; }
+  .view-toggle button:hover:not(.active) { background: #e0e0e0; }
+
+  .theme-tabs {
+    background: #fff; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    display: flex; overflow: hidden; font-size: 12px; font-weight: 600;
+  }
+  .theme-tab {
+    border: none; background: #f0f0f0; color: #666; padding: 7px 10px;
+    cursor: pointer; font-size: 12px; font-weight: 600; white-space: nowrap;
+    transition: background 0.15s, color 0.15s; border-right: 1px solid #ddd;
+  }
+  .theme-tab:last-child { border-right: none; }
+  .theme-tab.active { background: #1a1a2e; color: #fff; }
+  .theme-tab:hover:not(.active) { background: #e0e0e0; }
+
+
+  .dns-table { border-collapse: collapse; width: 100%; margin-top: 4px; }
+  .dns-table td { padding: 3px 6px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; font-size: 12px; }
+  .dns-table tr:last-child td { border-bottom: none; }
+  .dns-table td:first-child { font-weight: 600; white-space: nowrap; }
+  .dns-table td:last-child { color: #888; font-family: monospace; font-size: 11px; word-break: break-all; }
+  .popup-section { margin-top: 10px; padding-top: 8px; border-top: 1px solid #eee; }
+  .popup-section:first-of-type { border-top: none; }
+  .popup-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #999; margin-bottom: 4px; }
+  .popup-section-hint { font-weight: 400; text-transform: none; letter-spacing: 0; }
 </style>
+<script defer src="https://analytics.psi.space/script.js" data-website-id="e0787f3c-1741-4980-9d29-530b1eb464db"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 </head>
 <body>
 <header id="header">
   <div class="header-left">
-    <h1 class="brand">MX-Map</h1>
-    <span class="beta-badge" title="Beta-Status, diese Webseite kann Fehler enthalten">beta</span>
+    <h1 class="brand">MX-Map <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-left:none;color:#ccc;padding:1px 6px;border-radius:3px;vertical-align:middle;display:inline-block;position:relative;margin-left:2px;"><span style="position:absolute;left:0;top:0;bottom:0;width:6px;border-radius:2px 0 0 2px;overflow:hidden;display:flex;flex-direction:column;"><span style="flex:1;background:#000;"></span><span style="flex:1;background:#DD0000;"></span><span style="flex:1;background:#FFCC00;"></span></span><span style="margin-left:8px;">Germany</span></span></h1>
     <span class="separator">|</span>
     <span class="tagline">E-Mail-Provider deutscher Gemeinden</span>
   </div>
   <div class="header-right">
-    <a href="/impressum.html" class="header-link">Impressum</a>
+<a href="/impressum.html" class="header-link">Impressum</a>
     <a href="/datenschutz.html" class="header-link">Datenschutz</a>
     <button class="toggle-info" id="toggle-info" aria-expanded="true" aria-controls="info-bar">Info &#9652;</button>
   </div>
@@ -174,14 +247,13 @@
 </main>
 
 <script>
+
 document.addEventListener('DOMContentLoaded', function () {
-if (!CSS.supports('height', '100dvh')) {
-  document.body.style.height = window.innerHeight + 'px';
-}
-const COLORS = {
+var COLORS = {
   microsoft:      '#E83838',
   google:         '#FFAB96',
   aws:            '#FF7A5C',
+  kommunal:       '#4A90D9',
   ionos:          '#78FFD6',
   strato:         '#2EDBA8',
   hetzner:        '#10B898',
@@ -192,13 +264,19 @@ const COLORS = {
   'open-xchange': '#6CC4A1',
   'german-isp':   '#2DB87F',
   'independent':  '#1A9E6E',
+  hornetsecurity: '#FF6B35',
+  sophos:         '#1E3A5F',
+  barracuda:      '#00B4D8',
+  proofpoint:     '#E67E22',
+  antispameurope: '#9B59B6',
+  mimecast:       '#27AE60',
   unknown:        '#BFBFBF'
 };
-
-const LABELS = {
+var LABELS = {
   microsoft:      'Microsoft 365',
   google:         'Google Workspace',
   aws:            'Amazon Web Services',
+  kommunal:       'Kommunales RZ',
   ionos:          'IONOS / 1&1',
   strato:         'Strato',
   hetzner:        'Hetzner',
@@ -209,103 +287,259 @@ const LABELS = {
   'open-xchange': 'Open-Xchange',
   'german-isp':   'Deutscher ISP',
   'independent':  'Eigenständig',
+  hornetsecurity: 'Hornetsecurity',
+  sophos:         'Sophos',
+  barracuda:      'Barracuda',
+  proofpoint:     'Proofpoint',
+  antispameurope: 'AntiSpam Europe',
+  mimecast:       'Mimecast',
   unknown:        'Unbekannt'
+};
+var BACKEND_LABELS = {
+  microsoft: 'Microsoft 365'
+};
+
+if (!CSS.supports('height', '100dvh')) {
+  document.body.style.height = window.innerHeight + 'px';
+}
+
+var currentTheme = 'provider';
+
+var SECURITY_COLORS = {
+  'vorbildlich': '#16a34a',
+  'gut': '#86efac',
+  'basis': '#fbbf24',
+  'minimal': '#f97316',
+  'keiner': '#ef4444'
+};
+var SECURITY_LABELS = {
+  'vorbildlich': 'Vorbildlich (DMARC reject + DKIM + DANE)',
+  'gut': 'Gut (DMARC + DKIM)',
+  'basis': 'Basis (DMARC oder DKIM)',
+  'minimal': 'Minimal (nur SPF)',
+  'keiner': 'Kein Schutz'
+};
+
+var SOVEREIGNTY_COLORS = {
+  'us-cloud': '#ef4444',
+  'eu-hosting': '#3b82f6',
+  'kommunal': '#16a34a',
+  'eigener-server': '#8b5cf6'
+};
+var SOVEREIGNTY_LABELS = {
+  'us-cloud': 'US-Cloud (MS/Google/AWS)',
+  'eu-hosting': 'EU-Hosting (IONOS/Strato/Hetzner)',
+  'kommunal': 'Kommunales RZ',
+  'eigener-server': 'Eigener Server'
+};
+
+var HOSTING_COLORS = {
+  'us-cloud': '#ef4444',
+  'eu-hosting': '#3b82f6',
+  'deutscher-hoster': '#16a34a',
+  'keine-website': '#ddd'
+};
+var HOSTING_LABELS = {
+  'us-cloud': 'US-Cloud (AWS/GCP/Azure/Cloudflare)',
+  'eu-hosting': 'EU-Hosting',
+  'deutscher-hoster': 'Deutscher Hoster',
+  'keine-website': 'Keine Website'
+};
+
+var TRACKER_COLORS = {
+  'google-analytics': '#ef4444',
+  'datenschutzfreundlich': '#16a34a',
+  'sonstige': '#f97316',
+  'keine-tracker': '#86efac'
+};
+var TRACKER_LABELS = {
+  'google-analytics': 'Google Analytics',
+  'datenschutzfreundlich': 'Matomo/Plausible',
+  'sonstige': 'Sonstige Tracker',
+  'keine-tracker': 'Keine Tracker'
+};
+
+var US_HOSTING_ASNS = ['aws', 'google-cloud', 'azure', 'cloudflare'];
+var DE_HOSTING = ['hetzner', 'ionos', 'strato', 'netcup', 'all-inkl', 'mittwald', 'host-europe', 'telekom', 'contabo'];
+
+function getSecurityLevel(m) {
+  if (!m) return 'keiner';
+  var hasDmarc = m.dmarc && m.dmarc.policy;
+  var hasDkim = m.dkim_selectors && m.dkim_selectors.length > 0;
+  var hasDane = !!m.dane;
+  var dmarcReject = hasDmarc && m.dmarc.policy === 'reject';
+  if (dmarcReject && hasDkim && hasDane) return 'vorbildlich';
+  if (hasDmarc && hasDkim) return 'gut';
+  if (hasDmarc || hasDkim) return 'basis';
+  if (m.spf) return 'minimal';
+  return 'keiner';
+}
+
+function getSovereigntyLevel(m) {
+  if (!m) return 'eigener-server';
+  var p = m.provider || 'unknown';
+  if (['microsoft', 'google', 'aws'].indexOf(p) >= 0) return 'us-cloud';
+  if (m.backend && ['microsoft', 'google', 'aws'].indexOf(m.backend) >= 0) return 'us-cloud';
+  if (['ionos', 'strato', 'hetzner', 'posteo', 'mailbox.org', 'tutanota'].indexOf(p) >= 0) return 'eu-hosting';
+  if (p === 'kommunal') return 'kommunal';
+  return 'eigener-server';
+}
+
+function getHostingLevel(m) {
+  if (!m || !m.website_hosting) return 'keine-website';
+  var p = m.website_hosting.provider;
+  if (!p || p === 'sonstige') {
+    // Check ASN for unknown providers
+    var asn = m.website_hosting.asn;
+    if (!asn) return 'keine-website';
+    return 'eu-hosting';
+  }
+  if (US_HOSTING_ASNS.indexOf(p) >= 0) return 'us-cloud';
+  if (DE_HOSTING.indexOf(p) >= 0) return 'deutscher-hoster';
+  return 'eu-hosting';
+}
+
+function getTrackerLevel(m) {
+  if (!m) return 'keine-tracker';
+  var trackers = m.website_analytics;
+  if (!trackers || trackers.length === 0) return 'keine-tracker';
+  if (trackers.indexOf('google-analytics') >= 0 || trackers.indexOf('google-tag-manager') >= 0) return 'google-analytics';
+  if (trackers.indexOf('matomo') >= 0 || trackers.indexOf('plausible') >= 0) return 'datenschutzfreundlich';
+  return 'sonstige';
+}
+
+function getThemeColor(m, theme) {
+  if (theme === 'provider') return COLORS[m ? m.provider : 'unknown'] || COLORS.unknown;
+  if (theme === 'security') return SECURITY_COLORS[getSecurityLevel(m)] || '#ddd';
+  if (theme === 'sovereignty') return SOVEREIGNTY_COLORS[getSovereigntyLevel(m)] || '#ddd';
+  if (theme === 'hosting') return HOSTING_COLORS[getHostingLevel(m)] || '#ddd';
+  if (theme === 'tracker') return TRACKER_COLORS[getTrackerLevel(m)] || '#ddd';
+  return '#ddd';
+}
+
+function getThemeCategory(m, theme) {
+  if (theme === 'provider') return m ? m.provider : 'unknown';
+  if (theme === 'security') return getSecurityLevel(m);
+  if (theme === 'sovereignty') return getSovereigntyLevel(m);
+  if (theme === 'hosting') return getHostingLevel(m);
+  if (theme === 'tracker') return getTrackerLevel(m);
+  return 'unknown';
+}
+
+var LKZ_NAMES = {
+  'SH': 'Schleswig-Holstein',
+  'HH': 'Hamburg',
+  'NI': 'Niedersachsen',
+  'HB': 'Bremen',
+  'NW': 'Nordrhein-Westfalen',
+  'HE': 'Hessen',
+  'RP': 'Rheinland-Pfalz',
+  'BW': 'Baden-Württemberg',
+  'BY': 'Bayern',
+  'SL': 'Saarland',
+  'BE': 'Berlin',
+  'BB': 'Brandenburg',
+  'MV': 'Mecklenburg-Vorpommern',
+  'SN': 'Sachsen',
+  'ST': 'Sachsen-Anhalt',
+  'TH': 'Thüringen'
 };
 
 function escapeHtml(str) {
-  const el = document.createElement('span');
+  var el = document.createElement('span');
   el.textContent = str;
   return el.innerHTML;
 }
 
 function classifyHost(host) {
-  const h = host.toLowerCase();
-  if (['mail.protection.outlook.com','outlook.com','microsoft','office365','onmicrosoft','spf.protection.outlook.com','sharepointonline'].some(k => h.includes(k)))
-    return { name: 'Microsoft', category: 'hyperscaler' };
-  if (['google','googlemail','gmail','aspmx.l.google.com','_spf.google.com'].some(k => h.includes(k)))
-    return { name: 'Google', category: 'hyperscaler' };
-  if (['amazonaws','amazonses','awsdns'].some(k => h.includes(k)))
-    return { name: 'AWS', category: 'hyperscaler' };
-  if (['ionos','1and1','schlund','kundenserver.de','perfora.net','ui-dns'].some(k => h.includes(k)))
-    return { name: 'IONOS', category: 'german' };
-  if (h.includes('strato'))
-    return { name: 'Strato', category: 'german' };
-  if (['hetzner','your-server.de'].some(k => h.includes(k)))
-    return { name: 'Hetzner', category: 'german' };
-  if (['t-online','telekom'].some(k => h.includes(k)))
-    return { name: 'Telekom', category: 'german' };
-  if (h.includes('posteo'))
-    return { name: 'Posteo', category: 'german' };
-  if (h.includes('mailbox.org'))
-    return { name: 'mailbox.org', category: 'german' };
-  if (['tutanota','tutamail','tuta.io'].some(k => h.includes(k)))
-    return { name: 'Tutanota', category: 'german' };
-  if (h.includes('open-xchange'))
-    return { name: 'Open-Xchange', category: 'german' };
-  if (h.includes('retarus'))
-    return { name: 'Retarus', category: 'german' };
-  if (['mandrillapp.com','mandrill','mcsv.net'].some(k => h.includes(k)))
-    return { name: 'Mailchimp', category: 'foreign' };
-  if (h.includes('sendgrid'))
-    return { name: 'SendGrid', category: 'foreign' };
-  if (h.includes('mailjet'))
-    return { name: 'Mailjet', category: 'foreign' };
-  if (h.includes('mailgun'))
-    return { name: 'Mailgun', category: 'foreign' };
-  if (['sendinblue','brevo'].some(k => h.includes(k)))
-    return { name: 'Brevo', category: 'foreign' };
-  if (['hornetsecurity','hornetdmarc'].some(k => h.includes(k)))
-    return { name: 'Hornetsecurity', category: 'foreign' };
-  if (h.includes('barracudanetworks'))
-    return { name: 'Barracuda', category: 'foreign' };
-  const parts = host.replace(/^_/, '').split('.');
-  const name = parts.length >= 2 ? parts.slice(-2).join('.') : host;
-  if (h.endsWith('.de'))
-    return { name, category: 'german' };
-  return { name, category: 'unknown' };
+  var h = host.toLowerCase();
+  // US Hyperscaler
+  if (['mail.protection.outlook.com','outlook.com','microsoft','office365','onmicrosoft','spf.protection.outlook.com','sharepointonline'].some(function(k){return h.indexOf(k)>=0}))
+    return { name: 'Microsoft', category: 'us-cloud' };
+  if (['google','googlemail','gmail','aspmx.l.google.com','_spf.google.com'].some(function(k){return h.indexOf(k)>=0}))
+    return { name: 'Google', category: 'us-cloud' };
+  if (['amazonaws','amazonses','awsdns'].some(function(k){return h.indexOf(k)>=0}))
+    return { name: 'AWS', category: 'us-cloud' };
+  // Deutsche Provider
+  if (['ionos','1and1','schlund','ui-dns','perfora.net','kundenserver.de'].some(function(k){return h.indexOf(k)>=0}))
+    return { name: 'IONOS', category: 'deutsch' };
+  if (h.indexOf('strato') >= 0) return { name: 'Strato', category: 'deutsch' };
+  if (['hetzner','your-server.de'].some(function(k){return h.indexOf(k)>=0}))
+    return { name: 'Hetzner', category: 'deutsch' };
+  if (['t-online','telekom'].some(function(k){return h.indexOf(k)>=0}))
+    return { name: 'Telekom', category: 'deutsch' };
+  if (h.indexOf('posteo') >= 0) return { name: 'Posteo', category: 'deutsch' };
+  if (h.indexOf('mailbox.org') >= 0) return { name: 'mailbox.org', category: 'deutsch' };
+  if (['tutanota','tutamail','tuta.io'].some(function(k){return h.indexOf(k)>=0}))
+    return { name: 'Tutanota', category: 'deutsch' };
+  // Security Gateways
+  if (h.indexOf('hornetsecurity') >= 0) return { name: 'Hornetsecurity', category: 'gateway' };
+  if (h.indexOf('sophos') >= 0) return { name: 'Sophos', category: 'gateway' };
+  if (['barracuda','barracudanetworks'].some(function(k){return h.indexOf(k)>=0}))
+    return { name: 'Barracuda', category: 'gateway' };
+  if (h.indexOf('proofpoint') >= 0) return { name: 'Proofpoint', category: 'gateway' };
+  if (h.indexOf('mimecast') >= 0) return { name: 'Mimecast', category: 'gateway' };
+  if (h.indexOf('antispameurope') >= 0) return { name: 'AntiSpam Europe', category: 'gateway' };
+  if (h.indexOf('nospamproxy') >= 0) return { name: 'NoSpamProxy', category: 'gateway' };
+  if (h.indexOf('retarus') >= 0) return { name: 'Retarus', category: 'gateway' };
+  // Transactional
+  if (['sendgrid','mandrillapp','mailchimp','mcsv.net'].some(function(k){return h.indexOf(k)>=0}))
+    return { name: 'SendGrid/Mailchimp', category: 'transactional' };
+  if (h.indexOf('mailjet') >= 0) return { name: 'Mailjet', category: 'transactional' };
+  if (['sendinblue','brevo'].some(function(k){return h.indexOf(k)>=0}))
+    return { name: 'Brevo', category: 'transactional' };
+  // Kommunal
+  if (['kvnbw.de','rlp.de','landsh.de','bayern.de','pzd-svn.de','mvnet.de','kdo.de','ekom21.de','itebo.de','regioit','sis-schwerin','kommunale.it','kdvz','civitec','nol-is','krz.de','kgrz'].some(function(k){return h.indexOf(k)>=0}))
+    return { name: host.split('.').slice(-2).join('.'), category: 'kommunal' };
+  // Default
+  return { name: host.split('.').slice(-2).join('.'), category: 'sonstige' };
 }
 
 function parseSpfDelegations(spf) {
   if (!spf) return [];
-  const results = [];
-  const includeRe = /include:([^\s]+)/g;
-  let m;
+  var results = [];
+  var includeRe = /include:([^\s]+)/g;
+  var m;
   while ((m = includeRe.exec(spf)) !== null) results.push(m[1]);
-  const redirectRe = /redirect=([^\s]+)/g;
+  var redirectRe = /redirect=([^\s]+)/g;
   while ((m = redirectRe.exec(spf)) !== null) results.push(m[1]);
   return results;
 }
 
 function renderTable(hosts) {
-  const rows = hosts.map(host => {
-    const cls = classifyHost(host);
-    const eName = escapeHtml(cls.name);
-    const eCat = escapeHtml(cls.category);
-    const eHost = escapeHtml(host);
-    return `<tr><td class="dn">${eName}</td><td><span class="cat-badge ${eCat}">${eCat}</span></td><td class="host" title="${eHost}">${eHost}</td></tr>`;
-  }).join('');
-  return `<table class="dns-table">${rows}</table>`;
+  return '<table class="dns-table">' + hosts.map(function(host) {
+    var cls = classifyHost(host);
+    var catColors = {'us-cloud':'#E83838','deutsch':'#16a34a','gateway':'#FF6B35','kommunal':'#4A90D9','transactional':'#9B59B6','sonstige':'#999'};
+    var catLabels = {'us-cloud':'US-Cloud','deutsch':'deutsch','gateway':'Gateway','kommunal':'kommunal','transactional':'transaktional','sonstige':'sonstige'};
+    var bgColor = catColors[cls.category] || '#999';
+    var textCol = ['deutsch','kommunal','sonstige'].indexOf(cls.category) >= 0 ? '#fff' : '#fff';
+    return '<tr><td style="white-space:nowrap"><strong>' + escapeHtml(cls.name) + '</strong></td>' +
+      '<td><span style="background:' + bgColor + ';color:' + textCol + ';padding:1px 5px;border-radius:3px;font-size:10px;white-space:nowrap">' + (catLabels[cls.category]||cls.category) + '</span></td>' +
+      '<td style="font-family:monospace;font-size:11px;color:#666;max-width:200px;overflow:hidden;text-overflow:ellipsis" title="' + escapeHtml(host) + '">' + escapeHtml(host) + '</td></tr>';
+  }).join('') + '</table>';
 }
 
-const map = L.map('map', {
+var map = L.map('map', {
   center: [51.1657, 10.4515],
   zoom: 6,
   minZoom: 5,
   maxZoom: 14,
-  renderer: L.canvas()
 });
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+// European context map (lightweight, behind Germany)
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '',
   subdomains: 'abcd',
   maxZoom: 19
 }).addTo(map);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
-  subdomains: 'abcd',
-  maxZoom: 19,
-  pane: 'shadowPane'
+// German basemap on top (with German labels)
+L.tileLayer('https://sgx.geodatenzentrum.de/wmts_basemapde/tile/1.0.0/de_basemapde_web_raster_grau/default/GLOBAL_WEBMERCATOR/{z}/{y}/{x}.png', {
+  attribution: '&copy; <a href="https://www.bkg.bund.de">BKG</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+  maxZoom: 19
 }).addTo(map);
+
+// Labels included in basemap.de
 
 var resizeTimer;
 window.addEventListener('resize', function () {
@@ -316,10 +550,10 @@ window.addEventListener('resize', function () {
 });
 
 function toggleInfo() {
-  const bar = document.getElementById('info-bar');
-  const btn = document.getElementById('toggle-info');
+  var bar = document.getElementById('info-bar');
+  var btn = document.getElementById('toggle-info');
   bar.classList.toggle('collapsed');
-  const collapsed = bar.classList.contains('collapsed');
+  var collapsed = bar.classList.contains('collapsed');
   btn.innerHTML = collapsed ? 'Info \u25be' : 'Info \u25b4';
   btn.setAttribute('aria-expanded', String(!collapsed));
 }
@@ -331,58 +565,465 @@ document.getElementById('toggle-info').addEventListener('click', function () {
 
 if (window.innerWidth <= 600) {
   document.getElementById('info-bar').classList.add('collapsed');
-  const btn = document.getElementById('toggle-info');
-  btn.innerHTML = 'Info \u25be';
-  btn.setAttribute('aria-expanded', 'false');
+  var btnInfo = document.getElementById('toggle-info');
+  btnInfo.innerHTML = 'Info \u25be';
+  btnInfo.setAttribute('aria-expanded', 'false');
 }
 
+
+
 function toggleLegend() {
-  const legend = document.querySelector('.legend');
-  const btn = legend.querySelector('.legend-toggle');
+  var legend = document.querySelector('.legend');
+  var btn = legend.querySelector('.legend-toggle');
   legend.classList.toggle('legend-collapsed');
-  const collapsed = legend.classList.contains('legend-collapsed');
+  var collapsed = legend.classList.contains('legend-collapsed');
   btn.textContent = collapsed ? 'Legende \u25B8' : '\u2715';
   btn.setAttribute('aria-expanded', String(!collapsed));
 }
 
 function legendItemHtml(key, counts) {
-  const hatchSvg = 'data:image/svg+xml,' +
+  var hatchSvg = 'data:image/svg+xml,' +
     encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="#BFBFBF"/><path d="M-1,1 l2,-2 M0,8 l8,-8 M7,9 l2,-2" stroke="#000" stroke-width="1"/></svg>');
-  const bg = key === 'unknown'
+  var bg = key === 'unknown'
     ? "background-image:url('" + hatchSvg + "')"
-    : `background:${COLORS[key]}`;
-  return `<i style="${bg}"></i>${LABELS[key]} (${counts[key] || 0})`;
+    : 'background:' + COLORS[key];
+  return '<i style="' + bg + '"></i>' + LABELS[key] + ' (' + (counts[key] || 0) + ')';
 }
 
 function legendGroupHtml(label, keys, counts) {
-  const heading = label
-    ? `<span class="legend-group-label">${label}</span>`
+  var heading = label
+    ? '<span class="legend-group-label">' + label + '</span>'
     : '';
-  const items = keys.map(k => legendItemHtml(k, counts)).join('<br>');
-  return `<div class="legend-group">${heading}${items}</div>`;
+  var items = keys.map(function(k) { return legendItemHtml(k, counts); }).join('<br>');
+  return '<div class="legend-group">' + heading + items + '</div>';
+}
+
+function updateLegend(counts) {
+  var content = document.querySelector('.legend-content');
+  if (!content) return;
+  content.innerHTML =
+    '<strong>E-Mail-Provider</strong>' +
+    legendGroupHtml('US-basiert', ['microsoft', 'aws', 'google'], counts) +
+    legendGroupHtml('Deutsch / Öffentlich', ['kommunal', 'independent', 'german-isp', 'ionos', 'strato', 'hetzner', 'telekom'], counts) +
+    legendGroupHtml('Gateway', ['hornetsecurity', 'sophos', 'barracuda', 'proofpoint', 'antispameurope', 'mimecast'], counts);
+}
+
+function genericLegendItemHtml(key, label, color, count) {
+  return '<i style="background:' + color + '"></i>' + label + ' (' + (count || 0) + ')';
+}
+
+function updateThemeLegend(counts) {
+  var content = document.querySelector('.legend-content');
+  if (!content) return;
+
+  if (currentTheme === 'provider') {
+    updateLegend(counts);
+    return;
+  }
+
+  var colorsMap, labelsMap, title;
+  if (currentTheme === 'security') {
+    colorsMap = SECURITY_COLORS; labelsMap = SECURITY_LABELS; title = 'Security Level';
+  } else if (currentTheme === 'sovereignty') {
+    colorsMap = SOVEREIGNTY_COLORS; labelsMap = SOVEREIGNTY_LABELS; title = 'Souveränität';
+  } else if (currentTheme === 'hosting') {
+    colorsMap = HOSTING_COLORS; labelsMap = HOSTING_LABELS; title = 'Website Hosting';
+  } else if (currentTheme === 'tracker') {
+    colorsMap = TRACKER_COLORS; labelsMap = TRACKER_LABELS; title = 'Analytics/Tracker';
+  } else {
+    updateLegend(counts);
+    return;
+  }
+
+  var html = '<strong>' + title + '</strong><div class="legend-group" style="margin-top:6px">';
+  Object.keys(colorsMap).forEach(function(key) {
+    html += genericLegendItemHtml(key, labelsMap[key], colorsMap[key], counts[key]) + '<br>';
+  });
+  html += '</div>';
+  content.innerHTML = html;
+}
+
+var geoLayer = null;
+var krsLayer = null;
+var lanLayer = null;
+var muniData = null;
+var currentView = 'gemeinden';
+var gemTopo = null;
+var krsTopo = null;
+var lanTopo = null;
+
+function getFeatureLkz(feature) {
+  var props = feature.properties || {};
+  return props.lkz || props.LKZ || '';
+}
+
+function getFeatureAgs(feature) {
+  var props = feature.properties || {};
+  return String(props.ags || props.AGS || '');
+}
+
+function getFeatureName(feature) {
+  var props = feature.properties || {};
+  return props.gen || props.GEN || props.name || '';
+}
+
+function getFeatureBez(feature) {
+  var props = feature.properties || {};
+  return props.bez || props.BEZ || '';
+}
+
+function getLandkreisCode(ags) {
+  return ags.substring(0, 5);
+}
+
+// --- Sovereignty classification ---
+var US_CLOUD_PROVIDERS = ['microsoft', 'google', 'aws'];
+var EU_HOSTING_PROVIDERS = ['ionos', 'strato', 'hetzner', 'posteo', 'mailbox.org', 'tutanota'];
+
+function classifySovereignty(m) {
+  if (!m) return 'unknown';
+  var p = m.provider || 'unknown';
+  if (US_CLOUD_PROVIDERS.indexOf(p) >= 0) return 'us-cloud';
+  if (m.backend && US_CLOUD_PROVIDERS.indexOf(m.backend) >= 0) return 'us-cloud';
+  if (EU_HOSTING_PROVIDERS.indexOf(p) >= 0) return 'eu-hosting';
+  if (p === 'kommunal') return 'kommunal';
+  if (p === 'independent' || p === 'german-isp') return 'eigener-server';
+  return 'eigener-server';
+}
+
+// --- Security level classification ---
+function classifySecurityLevel(m) {
+  if (!m) return 'ungeschuetzt';
+  var hasDmarc = m.dmarc && m.dmarc.policy;
+  var hasDkim = m.dkim_selectors && m.dkim_selectors.length > 0;
+  var hasDane = !!m.dane;
+  var dmarcReject = hasDmarc && m.dmarc.policy === 'reject';
+
+  if (dmarcReject && hasDkim && hasDane) return 'vorbildlich';
+  if (hasDmarc && hasDkim) return 'basis';
+  if (m.spf && (!hasDmarc || !hasDkim)) return 'minimal';
+  return 'ungeschuetzt';
+}
+
+// --- Gateway detection for filter ---
+var GATEWAY_PROVIDERS = ['hornetsecurity', 'sophos', 'barracuda', 'proofpoint', 'antispameurope', 'mimecast'];
+
+function getGatewayName(m) {
+  if (!m) return '';
+  if (m.gateway && GATEWAY_PROVIDERS.indexOf(m.gateway) >= 0) return m.gateway;
+  if (GATEWAY_PROVIDERS.indexOf(m.provider) >= 0) return m.provider;
+  return '';
+}
+
+function isFeatureActive(feature, filterState) {
+  var lkz = getFeatureLkz(feature);
+  var ags = getFeatureAgs(feature);
+  var m = muniData ? muniData[ags] : null;
+  var provider = m ? m.provider : 'unknown';
+
+  if (filterState.bundesland && lkz !== filterState.bundesland) return false;
+  if (filterState.landkreis && getLandkreisCode(ags) !== filterState.landkreis) return false;
+  if (filterState.provider && provider !== filterState.provider) return false;
+  if (filterState.security && classifySecurityLevel(m) !== filterState.security) return false;
+  if (filterState.gateway && getGatewayName(m) !== filterState.gateway) return false;
+  if (filterState.sovereignty && classifySovereignty(m) !== filterState.sovereignty) return false;
+
+  // Detail toggles (AND logic)
+  if (filterState.dnssec && !(m && m.dnssec)) return false;
+  if (filterState.ipv6 && !(m && m.ipv6_mx)) return false;
+  if (filterState.teams && !(m && m.srv_records && m.srv_records.teams)) return false;
+  if (filterState.caldav && !(m && m.srv_records && m.srv_records.caldav)) return false;
+  if (filterState.spfStrict && !(m && m.spf_strictness === 'strict')) return false;
+
+  return true;
+}
+
+function getFilterState() {
+  var providerSel = document.getElementById('filter-provider');
+  var securitySel = document.getElementById('filter-security');
+  var gatewaySel = document.getElementById('filter-gateway');
+  var sovereigntySel = document.getElementById('filter-sovereignty');
+  var bundeslandSel = document.getElementById('filter-bundesland');
+  var landkreisSel = document.getElementById('filter-landkreis');
+  return {
+    provider: providerSel ? providerSel.value : '',
+    security: securitySel ? securitySel.value : '',
+    gateway: gatewaySel ? gatewaySel.value : '',
+    sovereignty: sovereigntySel ? sovereigntySel.value : '',
+    bundesland: bundeslandSel ? bundeslandSel.value : '',
+    landkreis: landkreisSel ? landkreisSel.value : '',
+    dnssec: document.getElementById('toggle-dnssec') ? document.getElementById('toggle-dnssec').checked : false,
+    ipv6: document.getElementById('toggle-ipv6') ? document.getElementById('toggle-ipv6').checked : false,
+    teams: document.getElementById('toggle-teams') ? document.getElementById('toggle-teams').checked : false,
+    caldav: document.getElementById('toggle-caldav') ? document.getElementById('toggle-caldav').checked : false,
+    spfStrict: document.getElementById('toggle-spf-strict') ? document.getElementById('toggle-spf-strict').checked : false,
+  };
+}
+
+function applyFilters() {
+  if (!geoLayer) return;
+  var filterState = getFilterState();
+  var counts = {};
+  var activeCount = 0;
+  var totalCount = 0;
+
+  geoLayer.eachLayer(function(layer) {
+    var feature = layer.feature;
+    var ags = getFeatureAgs(feature);
+    var m = muniData ? muniData[ags] : null;
+    var cat = getThemeCategory(m, currentTheme);
+    var active = isFeatureActive(feature, filterState);
+    totalCount++;
+
+    if (active) {
+      activeCount++;
+      counts[cat] = (counts[cat] || 0) + 1;
+      layer.setStyle({
+        fillColor: getThemeColor(m, currentTheme),
+        fillOpacity: 0.75,
+        weight: 0.5,
+        color: '#666'
+      });
+    } else {
+      layer.setStyle({
+        fillColor: '#ddd',
+        fillOpacity: 0.15,
+        weight: 0.2,
+        color: '#ccc'
+      });
+    }
+  });
+
+  updateThemeLegend(counts);
+  var countEl = document.getElementById('filter-active-count');
+  if (countEl) {
+    countEl.textContent = activeCount + ' / ' + totalCount + ' Gemeinden';
+  }
+}
+
+function populateLandkreisFilter(bundesland) {
+  var sel = document.getElementById('filter-landkreis');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Alle Landkreise</option>';
+
+  if (!bundesland || !geoLayer) {
+    sel.disabled = true;
+    return;
+  }
+
+  var kreisNames = {};
+  geoLayer.eachLayer(function(layer) {
+    var feature = layer.feature;
+    var lkz = getFeatureLkz(feature);
+    if (lkz !== bundesland) return;
+    var ags = getFeatureAgs(feature);
+    var kreisCode = getLandkreisCode(ags);
+    if (!kreisNames[kreisCode]) kreisNames[kreisCode] = [];
+    var name = getFeatureName(feature);
+    if (name) kreisNames[kreisCode].push(name);
+  });
+
+  var sorted = Object.keys(kreisNames).sort(function(a, b) {
+    var na = (kreisNames[a][0] || a);
+    var nb = (kreisNames[b][0] || b);
+    return na.localeCompare(nb, 'de');
+  });
+
+  sorted.forEach(function(code) {
+    var names = kreisNames[code];
+    var label = code + ' (' + (names[0] || '?') + (names.length > 1 ? ', \u2026' : '') + ')';
+    var opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = label;
+    sel.appendChild(opt);
+  });
+
+  sel.disabled = false;
+}
+
+function populateProviderFilter() {
+  var sel = document.getElementById('filter-provider');
+  if (!sel) return;
+  Object.keys(LABELS).forEach(function(key) {
+    var opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = LABELS[key];
+    sel.appendChild(opt);
+  });
+}
+
+function populateBundeslandFilter() {
+  var sel = document.getElementById('filter-bundesland');
+  if (!sel) return;
+  var sortedKeys = Object.keys(LKZ_NAMES).sort(function(a, b) {
+    return LKZ_NAMES[a].localeCompare(LKZ_NAMES[b], 'de');
+  });
+  sortedKeys.forEach(function(key) {
+    var opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = LKZ_NAMES[key];
+    sel.appendChild(opt);
+  });
+}
+
+function switchFilterTab(tabId) {
+  document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.filter-panel').forEach(function(p) { p.classList.remove('active'); });
+  var tab = document.querySelector('.filter-tab[data-tab="' + tabId + '"]');
+  var panel = document.getElementById('panel-' + tabId);
+  if (tab) tab.classList.add('active');
+  if (panel) panel.classList.add('active');
+}
+
+function resetAllFilters() {
+  ['filter-provider', 'filter-security', 'filter-gateway', 'filter-sovereignty', 'filter-bundesland', 'filter-landkreis'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['toggle-dnssec', 'toggle-ipv6', 'toggle-teams', 'toggle-caldav', 'toggle-spf-strict'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.checked = false;
+  });
+  var lkSel = document.getElementById('filter-landkreis');
+  if (lkSel) lkSel.disabled = true;
+  applyFilters();
+}
+
+
+function aggregateKreisData() {
+  if (!muniData) return {};
+  var kreisMap = {};
+  Object.keys(muniData).forEach(function(ags) {
+    var krsCode = ags.substring(0, 5);
+    if (!kreisMap[krsCode]) kreisMap[krsCode] = {};
+    var provider = muniData[ags].provider || 'unknown';
+    kreisMap[krsCode][provider] = (kreisMap[krsCode][provider] || 0) + 1;
+  });
+  // Find most common provider per Landkreis
+  var result = {};
+  Object.keys(kreisMap).forEach(function(krsCode) {
+    var providers = kreisMap[krsCode];
+    var topProvider = 'unknown';
+    var topCount = 0;
+    Object.keys(providers).forEach(function(p) {
+      if (providers[p] > topCount) {
+        topCount = providers[p];
+        topProvider = p;
+      }
+    });
+    result[krsCode] = { provider: topProvider, counts: providers, total: Object.values(providers).reduce(function(a, b) { return a + b; }, 0) };
+  });
+  return result;
+}
+
+function switchToGemeinden() {
+  if (krsLayer) { map.removeLayer(krsLayer); krsLayer = null; }
+  if (geoLayer) { geoLayer.addTo(map); }
+  if (lanLayer) lanLayer.bringToFront();
+  applyFilters();
+}
+
+function switchToLandkreise() {
+  if (geoLayer) map.removeLayer(geoLayer);
+  if (krsLayer) { map.removeLayer(krsLayer); krsLayer = null; }
+
+  var kreisData = aggregateKreisData();
+  var countyData = muniData ? (window._countyData || {}) : {};
+  var krsKey = Object.keys(krsTopo.objects)[0];
+  var krsGeojson = topojson.feature(krsTopo, krsTopo.objects[krsKey]);
+
+  var counts = {};
+  krsLayer = L.geoJSON(krsGeojson, {
+    style: function(feature) {
+      var ags = getFeatureAgs(feature);
+      var kd = kreisData[ags];
+      var provider = kd ? kd.provider : 'unknown';
+      counts[provider] = (counts[provider] || 0) + 1;
+      return {
+        fillColor: currentTheme === 'provider' ? (COLORS[provider] || COLORS.unknown) : '#999',
+        weight: 0.5,
+        color: '#666',
+        fillOpacity: 0.75
+      };
+    },
+    onEachFeature: function(feature, layer) {
+      var ags = getFeatureAgs(feature);
+      var name = getFeatureName(feature);
+      var kd = kreisData[ags];
+      if (!kd) {
+        layer.bindPopup('<div class="info-popup"><strong>' + escapeHtml(name || ags) + '</strong><br>Keine Daten</div>');
+        return;
+      }
+      var provider = kd.provider;
+      var color = COLORS[provider] || COLORS.unknown;
+      var lightProviders = ['aws', 'google', 'ionos', 'strato', 'hetzner', 'telekom', 'posteo', 'mailbox.org', 'tutanota', 'open-xchange', 'german-isp', 'kommunal', 'barracuda', 'mimecast', 'unknown'];
+      var textColor = lightProviders.indexOf(provider) >= 0 ? '#333' : '#fff';
+      var label = LABELS[provider] || provider;
+
+      // County's own domain info
+      var cd = countyData[ags];
+      var countyOwnHtml = '';
+      if (cd && cd.domain) {
+        var cProvider = cd.provider || 'unknown';
+        var cLabel = LABELS[cProvider] || cProvider;
+        var cColor = COLORS[cProvider] || COLORS.unknown;
+        var cTextColor = lightProviders.indexOf(cProvider) >= 0 ? '#333' : '#fff';
+        countyOwnHtml =
+          '<div class="popup-section"><div class="popup-section-title">Eigene Domain</div>' +
+          escapeHtml(cd.domain) + ' <span class="provider-badge" style="background:' + cColor + ';color:' + cTextColor + '">' + escapeHtml(cLabel) + '</span>' +
+          '</div>';
+      }
+
+      // Percentage breakdown
+      var breakdown = Object.keys(kd.counts).sort(function(a, b) { return kd.counts[b] - kd.counts[a]; }).map(function(p) {
+        var pct = Math.round(kd.counts[p] / kd.total * 100);
+        return '<tr><td>' + escapeHtml(LABELS[p] || p) + '</td><td style="text-align:right;padding-left:8px">' + pct + '%</td><td style="text-align:right;padding-left:4px;color:#999">' + kd.counts[p] + '</td></tr>';
+      }).join('');
+
+      layer.bindPopup(
+        '<div class="info-popup">' +
+        '<strong>' + escapeHtml(name || ags) + '</strong><br>' +
+        'Häufigster Provider: <span class="provider-badge" style="background:' + color + ';color:' + textColor + '">' + escapeHtml(label) + '</span>' +
+        countyOwnHtml +
+        '<div class="popup-section"><div class="popup-section-title">Gemeinden (' + kd.total + ')</div>' +
+        '<table class="dns-table">' + breakdown + '</table></div>' +
+        '</div>',
+        { maxWidth: 400 }
+      );
+    }
+  }).addTo(map);
+
+  if (lanLayer) lanLayer.bringToFront();
+  updateLegend(counts);
 }
 
 async function loadData() {
-  const [topoRes, dataRes] = await Promise.all([
-    fetch('https://raw.githubusercontent.com/jgehrcke/germany-administrative-boundaries/master/topojson/vg250_gem.topo.json'),
-    fetch('data.json')
+  var results = await Promise.all([
+    fetch('vg250_gem_topo.json'),
+    fetch('data.json?v=' + Date.now()),
+    fetch('vg250_lan_topo.json'),
+    fetch('vg250_krs_topo.json')
   ]);
 
-  const topo = await topoRes.json();
-  const dnsData = await dataRes.json();
+  var dnsData = await results[1].json();
+  var topo = await results[0].json();
+  lanTopo = await results[2].json();
+  krsTopo = await results[3].json();
+  gemTopo = topo;
 
-  const muni = dnsData.municipalities;
+  muniData = dnsData.municipalities;
+  window._countyData = dnsData.counties || {};
 
   if (dnsData.generated) {
-    const date = new Date(dnsData.generated);
+    var date = new Date(dnsData.generated);
     document.getElementById('generated').textContent =
       'Aktualisiert ' + date.toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' });
   }
 
-  const isMobile = window.innerWidth <= 600;
-  const legend = L.control({ position: isMobile ? 'topright' : 'bottomright' });
+  var isMobile = window.innerWidth <= 600;
+  var legend = L.control({ position: isMobile ? 'topright' : 'bottomright' });
   legend.onAdd = function () {
-    const div = L.DomUtil.create('div', 'legend');
+    var div = L.DomUtil.create('div', 'legend');
     if (isMobile) div.classList.add('legend-collapsed');
     div.innerHTML =
       '<button class="legend-toggle" aria-label="Legende umschalten" aria-expanded="' + (!isMobile) + '">' + (isMobile ? 'Legende \u25B8' : '') + '</button>' +
@@ -397,76 +1038,290 @@ async function loadData() {
   legend.addTo(map);
   document.querySelector('.legend-toggle').addEventListener('click', toggleLegend);
 
-  const objectKeys = Object.keys(topo.objects);
-  const geoKey = objectKeys.find(k => k.includes('gem') || k.includes('mun')) || objectKeys[0];
-  const geojson = topojson.feature(topo, topo.objects[geoKey]);
+  // Map filter control (top-left) with thematic tabs
+  var filterCtrl = L.control({ position: 'topleft' });
+  filterCtrl.onAdd = function() {
+    var div = L.DomUtil.create('div', 'map-filters');
+    div.innerHTML =
+      '<div class="filter-tabs">' +
+        '<button class="filter-tab active" data-tab="provider" title="Provider">&#128231;</button>' +
+        '<button class="filter-tab" data-tab="security" title="Security">&#128737;&#65039;</button>' +
+        '<button class="filter-tab" data-tab="gateway" title="Gateway">&#128274;</button>' +
+        '<button class="filter-tab" data-tab="sovereignty" title="Souveränität">&#127757;</button>' +
+        '<button class="filter-tab" data-tab="region" title="Region">&#127963;&#65039;</button>' +
+        '<button class="filter-tab" data-tab="details" title="Details">&#128202;</button>' +
+      '</div>' +
 
-  L.geoJSON(geojson, {
-    style: function (feature) {
-      const props = feature.properties || {};
-      const ags = String(props.AGS || props.ags || props.RS || props.rs || feature.id || '');
-      const m = muni[ags];
-      const provider = m ? m.provider : 'unknown';
+      '<div id="panel-provider" class="filter-panel active">' +
+        '<label>Provider</label>' +
+        '<select id="filter-provider"><option value="">Alle</option></select>' +
+      '</div>' +
+
+      '<div id="panel-security" class="filter-panel">' +
+        '<label>Security Level</label>' +
+        '<select id="filter-security">' +
+          '<option value="">Alle</option>' +
+          '<option value="vorbildlich">Vorbildlich (DMARC reject + DKIM + DANE)</option>' +
+          '<option value="basis">Basis (DMARC + DKIM)</option>' +
+          '<option value="minimal">Minimal (nur SPF)</option>' +
+          '<option value="ungeschuetzt">Ungeschützt</option>' +
+        '</select>' +
+      '</div>' +
+
+      '<div id="panel-gateway" class="filter-panel">' +
+        '<label>E-Mail Gateway</label>' +
+        '<select id="filter-gateway">' +
+          '<option value="">Alle</option>' +
+          '<option value="hornetsecurity">Hornetsecurity</option>' +
+          '<option value="sophos">Sophos</option>' +
+          '<option value="barracuda">Barracuda</option>' +
+          '<option value="proofpoint">Proofpoint</option>' +
+          '<option value="antispameurope">AntiSpam Europe</option>' +
+          '<option value="mimecast">Mimecast</option>' +
+        '</select>' +
+      '</div>' +
+
+      '<div id="panel-sovereignty" class="filter-panel">' +
+        '<label>Souveränität</label>' +
+        '<select id="filter-sovereignty">' +
+          '<option value="">Alle</option>' +
+          '<option value="us-cloud">US-Cloud (Microsoft/Google/AWS)</option>' +
+          '<option value="eu-hosting">EU-Hosting (IONOS/Strato/Hetzner/...)</option>' +
+          '<option value="kommunal">Kommunales RZ</option>' +
+          '<option value="eigener-server">Eigener Server</option>' +
+        '</select>' +
+      '</div>' +
+
+      '<div id="panel-region" class="filter-panel">' +
+        '<label>Bundesland</label>' +
+        '<select id="filter-bundesland"><option value="">Alle</option></select>' +
+        '<label>Landkreis</label>' +
+        '<select id="filter-landkreis" disabled><option value="">Alle</option></select>' +
+      '</div>' +
+
+      '<div id="panel-details" class="filter-panel">' +
+        '<label>Detail-Filter</label>' +
+        '<div class="filter-toggle-row"><input type="checkbox" id="toggle-dnssec"><label for="toggle-dnssec">DNSSEC aktiv</label></div>' +
+        '<div class="filter-toggle-row"><input type="checkbox" id="toggle-ipv6"><label for="toggle-ipv6">IPv6 (MX)</label></div>' +
+        '<div class="filter-toggle-row"><input type="checkbox" id="toggle-teams"><label for="toggle-teams">MS Teams SRV</label></div>' +
+        '<div class="filter-toggle-row"><input type="checkbox" id="toggle-caldav"><label for="toggle-caldav">CalDAV SRV</label></div>' +
+        '<div class="filter-toggle-row"><input type="checkbox" id="toggle-spf-strict"><label for="toggle-spf-strict">SPF strict (-all)</label></div>' +
+      '</div>' +
+
+      '<div class="filter-count" id="filter-active-count"></div>' +
+      '<button class="filter-reset" id="filter-reset">Filter zurücksetzen</button>';
+
+    L.DomEvent.disableClickPropagation(div);
+    L.DomEvent.disableScrollPropagation(div);
+    return div;
+  };
+  filterCtrl.addTo(map);
+
+  // Tab switching
+  document.querySelectorAll('.filter-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      switchFilterTab(this.getAttribute('data-tab'));
+    });
+  });
+
+  // Filter event listeners
+  document.getElementById('filter-bundesland').addEventListener('change', function() {
+    populateLandkreisFilter(this.value);
+    applyFilters();
+  });
+  ['filter-provider', 'filter-security', 'filter-gateway', 'filter-sovereignty', 'filter-landkreis'].forEach(function(id) {
+    document.getElementById(id).addEventListener('change', function() { applyFilters(); });
+  });
+  ['toggle-dnssec', 'toggle-ipv6', 'toggle-teams', 'toggle-caldav', 'toggle-spf-strict'].forEach(function(id) {
+    document.getElementById(id).addEventListener('change', function() { applyFilters(); });
+  });
+  document.getElementById('filter-reset').addEventListener('click', resetAllFilters);
+
+
+
+  var geoKey = Object.keys(topo.objects).find(function(k) { return k.includes('gem') || k.includes('mun'); }) || Object.keys(topo.objects)[0];
+  var geojson = topojson.feature(topo, topo.objects[geoKey]);
+
+  geoLayer = L.geoJSON(geojson, {
+    style: function(feature) {
+      var ags = getFeatureAgs(feature);
+      var m = muniData[ags];
       return {
-        fillColor: COLORS[provider] || COLORS.unknown,
-        weight: 0.3,
-        color: '#888',
+        fillColor: getThemeColor(m, currentTheme),
+        weight: 0.5,
+        color: '#666',
         fillOpacity: 0.75
       };
     },
-    onEachFeature: function (feature, layer) {
-      const props = feature.properties || {};
-      const ags = String(props.AGS || props.ags || props.RS || props.rs || feature.id || '');
-      const m = muni[ags];
+    onEachFeature: function(feature, layer) {
+      var ags = getFeatureAgs(feature);
+      var m = muniData[ags];
+      var geoName = getFeatureName(feature);
+      var bez = getFeatureBez(feature);
+      var lkz = getFeatureLkz(feature);
+      var displayName = geoName || ('AGS ' + ags);
+      if (bez) displayName += ' (' + bez + ')';
+
       if (!m) {
-        const geoName = props.GEN || props.gen || props.NAME || '';
-        layer.bindPopup(`<div class="info-popup"><strong>${escapeHtml(geoName || 'AGS ' + ags)}</strong><br>Keine Daten</div>`);
+        var bl = LKZ_NAMES[lkz] || lkz;
+        layer.bindPopup('<div class="info-popup"><strong>' + escapeHtml(displayName) + '</strong><br>' + (bl ? escapeHtml(bl) + '<br>' : '') + 'Keine Daten</div>');
         return;
       }
-      const color = COLORS[m.provider] || COLORS.unknown;
-      const textColor = ['aws', 'google', 'ionos', 'strato', 'hetzner', 'telekom', 'posteo', 'mailbox.org', 'tutanota', 'open-xchange', 'german-isp', 'unknown'].includes(m.provider) ? '#333' : '#fff';
-      const label = LABELS[m.provider] || m.provider;
+      var provider = m.provider || 'unknown';
+      var color = COLORS[provider] || COLORS.unknown;
+      var lightProviders = ['aws', 'google', 'ionos', 'strato', 'hetzner', 'telekom', 'posteo', 'mailbox.org', 'tutanota', 'open-xchange', 'german-isp', 'kommunal', 'barracuda', 'mimecast', 'unknown'];
+      var textColor = lightProviders.indexOf(provider) >= 0 ? '#333' : '#fff';
+      var label = LABELS[provider] || provider;
 
-      let mxSection = '';
+      var backendHtml = '';
+      if (m.backend && BACKEND_LABELS[m.backend]) {
+        backendHtml = '<br><small>' + escapeHtml(BACKEND_LABELS[m.backend]) + ' hinter ' + escapeHtml(label) + '</small>';
+      }
+
+      // Build rich popup (Swiss-style with classified hosts)
+      var eName = escapeHtml(m.name || geoName);
+      var eDomain = escapeHtml(m.domain || 'unbekannt');
+      var eLabel = escapeHtml(label);
+      var eState = escapeHtml(m.state || LKZ_NAMES[lkz] || '');
+
+      // MX section with classified hosts
+      var mxHtml = '';
       if (m.mx && m.mx.length > 0) {
-        mxSection = `<div class="popup-section"><div class="popup-section-title">Eingehende Mail verarbeitet durch <span class="popup-section-hint">(MX)</span></div>${renderTable(m.mx)}</div>`;
+        mxHtml = '<div class="popup-section"><div class="popup-section-title"><i class="ti ti-mail-forward" style="font-size:13px"></i> Eingehende Mail verarbeitet durch <span class="popup-section-hint">(MX)</span></div>' + renderTable(m.mx) + '</div>';
       }
 
-      const spfDelegations = parseSpfDelegations(m.spf);
-      let spfSection = '';
+      // SPF delegations with classified hosts
+      var spfDelegations = parseSpfDelegations(m.spf);
+      var spfHtml = '';
       if (spfDelegations.length > 0) {
-        spfSection = `<div class="popup-section"><div class="popup-section-title">Autorisiert zum Senden <span class="popup-section-hint">(SPF)</span></div>${renderTable(spfDelegations)}</div>`;
+        spfHtml = '<div class="popup-section"><div class="popup-section-title"><i class="ti ti-mail-check" style="font-size:13px"></i> Autorisiert zum Senden <span class="popup-section-hint">(SPF)</span></div>' + renderTable(spfDelegations) + '</div>';
       }
 
-      const eName = escapeHtml(m.name);
-      const eDomain = escapeHtml(m.domain || 'unbekannt');
-      const eLabel = escapeHtml(label);
+      // Security badges
+      var badges = [];
+      if (m.dmarc && m.dmarc.policy === 'reject') badges.push('<span style="background:#16a34a;color:#fff;padding:1px 5px;border-radius:3px;font-size:10px">DMARC reject</span>');
+      else if (m.dmarc && m.dmarc.policy === 'quarantine') badges.push('<span style="background:#eab308;color:#333;padding:1px 5px;border-radius:3px;font-size:10px">DMARC quarantine</span>');
+      else if (m.dmarc && m.dmarc.policy) badges.push('<span style="background:#f97316;color:#fff;padding:1px 5px;border-radius:3px;font-size:10px">DMARC ' + m.dmarc.policy + '</span>');
+      if (m.dkim_selectors && m.dkim_selectors.length > 0) badges.push('<span style="background:#3b82f6;color:#fff;padding:1px 5px;border-radius:3px;font-size:10px">DKIM</span>');
+      if (m.dane) badges.push('<span style="background:#8b5cf6;color:#fff;padding:1px 5px;border-radius:3px;font-size:10px">DANE</span>');
+      if (m.dnssec) badges.push('<span style="background:#06b6d4;color:#fff;padding:1px 5px;border-radius:3px;font-size:10px">DNSSEC</span>');
+      if (m.ipv6_mx) badges.push('<span style="background:#ec4899;color:#fff;padding:1px 5px;border-radius:3px;font-size:10px">IPv6</span>');
+      var badgesHtml = badges.length > 0 ? '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:3px">' + badges.join('') + '</div>' : '';
+
+      // Website hosting/CMS/tracker section
+      var websiteHtml = '';
+      if (m.website_hosting || m.website_cms || m.website_analytics) {
+        websiteHtml = '<div class="popup-section"><div class="popup-section-title"><i class="ti ti-world" style="font-size:13px"></i> Website</div>';
+        if (m.website_hosting && m.website_hosting.provider) {
+          var hp = m.website_hosting.provider;
+          var hpLabel = hp.charAt(0).toUpperCase() + hp.slice(1);
+          websiteHtml += '<table class="dns-table"><tr><td>Hosting</td><td>' + escapeHtml(hpLabel) + (m.website_hosting.asn ? ' (AS' + m.website_hosting.asn + ')' : '') + '</td></tr>';
+        } else {
+          websiteHtml += '<table class="dns-table">';
+        }
+        if (m.website_cms && m.website_cms !== 'unbekannt') websiteHtml += '<tr><td>CMS</td><td>' + escapeHtml(m.website_cms) + '</td></tr>';
+        if (m.website_server) websiteHtml += '<tr><td>Server</td><td>' + escapeHtml(m.website_server) + '</td></tr>';
+        if (m.website_analytics && m.website_analytics.length > 0) websiteHtml += '<tr><td>Tracker</td><td>' + escapeHtml(m.website_analytics.join(', ')) + '</td></tr>';
+        if (m.website_consent) websiteHtml += '<tr><td>Consent</td><td>' + escapeHtml(m.website_consent) + '</td></tr>';
+        if (m.website_https !== undefined) websiteHtml += '<tr><td>HTTPS</td><td>' + (m.website_https ? 'Ja' : 'Nein') + '</td></tr>';
+        websiteHtml += '</table></div>';
+      }
+
       layer.bindPopup(
-        `<div class="info-popup">` +
-        `<strong>${eName}</strong><br>` +
-        `${eDomain} <span class="provider-badge" style="background:${color};color:${textColor}">${eLabel}</span>` +
-        mxSection + spfSection +
-        `</div>`,
+        '<div class="info-popup">' +
+        '<strong>' + eName + '</strong>' + (eState ? ' <small>(' + eState + ')</small>' : '') + '<br>' +
+        eDomain + ' <span class="provider-badge" style="background:' + color + ';color:' + textColor + '">' + eLabel + '</span>' +
+        backendHtml +
+        badgesHtml +
+        mxHtml +
+        spfHtml +
+        websiteHtml +
+        '</div>',
         { maxWidth: 450 }
       );
-      layer.on('mouseover', function () { this.setStyle({ weight: 2, color: '#333' }); });
-      layer.on('mouseout', function () { this.setStyle({ weight: 0.3, color: '#888' }); });
     }
   }).addTo(map);
 
-  const loading = document.getElementById('map-loading');
+  // Bundesland borders overlay (always visible)
+  var lanKey = Object.keys(lanTopo.objects)[0];
+  var lanGeojson = topojson.feature(lanTopo, lanTopo.objects[lanKey]);
+  lanLayer = L.geoJSON(lanGeojson, {
+    style: function() {
+      return { weight: 1.5, color: '#333', fillOpacity: 0, interactive: false };
+    },
+    interactive: false
+  }).addTo(map);
+  lanLayer.bringToFront();
+
+  // Theme switcher control (topright)
+  var themeCtrl = L.control({ position: 'topright' });
+  themeCtrl.onAdd = function() {
+    var div = L.DomUtil.create('div', 'theme-tabs');
+    div.innerHTML =
+      '<button class="theme-tab active" data-theme="provider" title="E-Mail Provider">&#128231; Provider</button>' +
+      '<button class="theme-tab" data-theme="security" title="Security Level">&#128737;&#65039; Security</button>' +
+      '<button class="theme-tab" data-theme="sovereignty" title="Souveränität">&#127757; Souveränität</button>' +
+      '<button class="theme-tab" data-theme="hosting" title="Website Hosting">&#127760; Hosting</button>' +
+      '<button class="theme-tab" data-theme="tracker" title="Analytics/Tracker">&#128202; Tracker</button>';
+    L.DomEvent.disableClickPropagation(div);
+    return div;
+  };
+  themeCtrl.addTo(map);
+
+  document.querySelectorAll('.theme-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.theme-tab').forEach(function(t) { t.classList.remove('active'); });
+      this.classList.add('active');
+      currentTheme = this.getAttribute('data-theme');
+      applyFilters();
+    });
+  });
+
+  // View toggle control (Gemeinden / Landkreise)
+  var toggleCtrl = L.control({ position: 'topright' });
+  toggleCtrl.onAdd = function() {
+    var div = L.DomUtil.create('div', 'view-toggle');
+    div.innerHTML =
+      '<button id="btn-gemeinden" class="active">Gemeinden</button>' +
+      '<button id="btn-landkreise">Landkreise</button>';
+    L.DomEvent.disableClickPropagation(div);
+    return div;
+  };
+  toggleCtrl.addTo(map);
+
+  document.getElementById('btn-gemeinden').addEventListener('click', function() {
+    if (currentView === 'gemeinden') return;
+    currentView = 'gemeinden';
+    this.classList.add('active');
+    document.getElementById('btn-landkreise').classList.remove('active');
+    switchToGemeinden();
+  });
+  document.getElementById('btn-landkreise').addEventListener('click', function() {
+    if (currentView === 'landkreise') return;
+    currentView = 'landkreise';
+    this.classList.add('active');
+    document.getElementById('btn-gemeinden').classList.remove('active');
+    switchToLandkreise();
+  });
+
+  // Populate filter dropdowns
+  if (typeof populateProviderFilter === 'function') populateProviderFilter();
+  if (typeof populateBundeslandFilter === 'function') populateBundeslandFilter();
+
+  var loading = document.getElementById('map-loading');
   if (loading) loading.remove();
   map.invalidateSize({ animate: false });
 }
 
-loadData().catch(err => {
+loadData().catch(function(err) {
   console.error('Failed to load data:', err);
-  const loading = document.getElementById('map-loading');
+  var loading = document.getElementById('map-loading');
   if (loading) {
     loading.textContent = 'Kartendaten konnten nicht geladen werden. Bitte später erneut versuchen.';
     loading.style.color = '#dc2626';
   }
 });
+
 });
 </script>
 </body>

@@ -149,7 +149,7 @@ async def process_unknown(
                 mx_cnames = await resolve_mx_cnames(mx)
                 mx_asns = await resolve_mx_asns(mx)
                 autodiscover = await lookup_autodiscover(email_domain)
-                provider = classify(
+                provider, backend = classify(
                     mx,
                     spf,
                     mx_cnames=mx_cnames,
@@ -165,6 +165,8 @@ async def process_unknown(
                 m["mx"] = mx
                 m["spf"] = spf
                 m["provider"] = provider
+                if backend:
+                    m["backend"] = backend
                 m["domain"] = email_domain
                 if spf_resolved and spf_resolved != spf:
                     m["spf_resolved"] = spf_resolved
@@ -251,7 +253,7 @@ async def run(data_path: Path) -> None:
                 mx_cnames = await resolve_mx_cnames(mx) if mx else {}
                 mx_asns = await resolve_mx_asns(mx) if mx else set()
                 autodiscover = await lookup_autodiscover(domain)
-                provider = classify(
+                provider, backend = classify(
                     mx,
                     spf,
                     mx_cnames=mx_cnames,
@@ -268,6 +270,7 @@ async def run(data_path: Path) -> None:
                     mx_cnames,
                     mx_asns,
                     provider,
+                    backend,
                     gateway,
                     autodiscover,
                 )
@@ -283,12 +286,15 @@ async def run(data_path: Path) -> None:
                 mx_cnames,
                 mx_asns,
                 provider,
+                backend,
                 gateway,
                 autodiscover,
             ) in results:
                 muni[ags]["mx"] = mx
                 muni[ags]["spf"] = spf
                 muni[ags]["provider"] = provider
+                if backend:
+                    muni[ags]["backend"] = backend
                 if spf_resolved and spf_resolved != spf:
                     muni[ags]["spf_resolved"] = spf_resolved
                 if gateway:
@@ -317,7 +323,7 @@ async def run(data_path: Path) -> None:
                 mx_cnames = await resolve_mx_cnames(mx)
                 mx_asns = await resolve_mx_asns(mx)
                 autodiscover = await lookup_autodiscover(m["domain"])
-                provider = classify(
+                provider, backend = classify(
                     mx,
                     spf,
                     mx_cnames=mx_cnames,
@@ -329,6 +335,8 @@ async def run(data_path: Path) -> None:
                 m["mx"] = mx
                 m["spf"] = spf
                 m["provider"] = provider
+                if backend:
+                    m["backend"] = backend
                 if spf_resolved and spf_resolved != spf:
                     m["spf_resolved"] = spf_resolved
                 if gateway:

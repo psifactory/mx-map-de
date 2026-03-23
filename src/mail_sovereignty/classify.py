@@ -6,6 +6,7 @@ from mail_sovereignty.constants import (
     GOOGLE_KEYWORDS,
     HETZNER_KEYWORDS,
     IONOS_KEYWORDS,
+    KOMMUNAL_KEYWORDS,
     MAILBOX_ORG_KEYWORDS,
     MICROSOFT_KEYWORDS,
     OPEN_XCHANGE_KEYWORDS,
@@ -15,6 +16,7 @@ from mail_sovereignty.constants import (
     STRATO_KEYWORDS,
     TELEKOM_KEYWORDS,
     TUTANOTA_KEYWORDS,
+    VISIBLE_GATEWAYS,
 )
 
 
@@ -84,6 +86,20 @@ def _check_mx_blob_for_provider(mx_blob: str) -> str | None:
     return None
 
 
+def _detect_ms365_backend(
+    spf_record: str | None,
+    resolved_spf: str | None,
+    dkim_selectors: list[str] | None,
+) -> str | None:
+    """Detect Microsoft 365 behind a gateway via SPF/DKIM signals."""
+    spf_blob = ((spf_record or "") + " " + (resolved_spf or "")).lower()
+    if "spf.protection.outlook.com" in spf_blob:
+        return "microsoft"
+    if dkim_selectors and "selector1" in dkim_selectors and "selector2" in dkim_selectors:
+        return "microsoft"
+    return None
+
+
 def classify(
     mx_records: list[str],
     spf_record: str | None,
@@ -91,61 +107,71 @@ def classify(
     mx_asns: set[int] | None = None,
     resolved_spf: str | None = None,
     autodiscover: dict[str, str] | None = None,
-) -> str:
-    """Classify email provider based on MX, CNAME targets, and SPF.
+    dkim_selectors: list[str] | None = None,
+) -> tuple[str, str | None]:
+    """Classify email provider based on MX, CNAME targets, SPF, and DKIM.
 
-    MX records are checked first (they show where mail is actually delivered).
-    CNAME targets of MX hosts are checked next (to detect hidden hyperscaler usage).
-    If MX points to a known gateway, SPF (including resolved includes) is checked
-    to identify the actual mailbox provider behind the gateway.
-    SPF is only used as fallback when MX alone is inconclusive.
+    Returns (provider, backend) where backend is set when a gateway
+    fronts a detected backend provider (e.g. Microsoft 365).
     """
     mx_blob = " ".join(mx_records).lower()
 
+    # 1. Kommunale Rechenzentren (MX-based)
+    if any(k in mx_blob for k in KOMMUNAL_KEYWORDS):
+        backend = _detect_ms365_backend(spf_record, resolved_spf, dkim_selectors)
+        return ("kommunal", backend)
+
+    # 2. Visible gateways become the provider, with optional backend
+    gateway = detect_gateway(mx_records)
+    if gateway and gateway in VISIBLE_GATEWAYS:
+        backend = _detect_ms365_backend(spf_record, resolved_spf, dkim_selectors)
+        return (gateway, backend)
+
+    # 3. Direct provider from MX
     provider = _check_mx_blob_for_provider(mx_blob)
     if provider:
-        return provider
+        return (provider, None)
 
+    # 4. CNAME resolution of MX hosts
     if mx_records and mx_cnames:
         cname_blob = " ".join(mx_cnames.values()).lower()
         cname_provider = _check_mx_blob_for_provider(cname_blob)
         if cname_provider:
-            return cname_provider
+            return (cname_provider, None)
 
-    if mx_records and detect_gateway(mx_records):
+    # 5. Non-visible gateways: look through to find real provider via SPF
+    if mx_records and gateway:
         spf_blob = (spf_record or "").lower()
         provider = _check_spf_for_provider(spf_blob)
         if not provider and resolved_spf:
             provider = _check_spf_for_provider(resolved_spf.lower())
         if provider:
-            return provider
-        # No provider in SPF — check autodiscover for backend provider
+            return (provider, None)
         ad_provider = classify_from_autodiscover(autodiscover)
         if ad_provider:
-            return ad_provider
-        # Gateway relays to independent, fall through
+            return (ad_provider, None)
 
+    # 6. German ISP / independent
     if mx_records:
         if mx_asns and mx_asns & GERMAN_ISP_ASNS.keys():
-            # Check autodiscover for hyperscaler backend behind German ISP relay
             ad_provider = classify_from_autodiscover(autodiscover)
             if ad_provider:
-                return ad_provider
-            return "german-isp"
-        # Check autodiscover for hyperscaler backend behind independent MX
+                return (ad_provider, None)
+            return ("german-isp", None)
         ad_provider = classify_from_autodiscover(autodiscover)
         if ad_provider:
-            return ad_provider
-        return "independent"
+            return (ad_provider, None)
+        return ("independent", None)
 
+    # 7. SPF-only fallback
     spf_blob = (spf_record or "").lower()
     provider = _check_spf_for_provider(spf_blob)
     if not provider and resolved_spf:
         provider = _check_spf_for_provider(resolved_spf.lower())
     if provider:
-        return provider
+        return (provider, None)
 
-    return "unknown"
+    return ("unknown", None)
 
 
 def classify_from_mx(mx_records: list[str]) -> str | None:

@@ -59,7 +59,7 @@ async def scan_one(m: dict) -> dict:
     mx_cnames = await resolve_mx_cnames(mx) if mx else {}
     mx_asns = await resolve_mx_asns(mx) if mx else set()
     autodiscover = await lookup_autodiscover(domain) if domain else {}
-    provider = classify(
+    provider, backend = classify(
         mx,
         spf,
         mx_cnames=mx_cnames,
@@ -69,7 +69,7 @@ async def scan_one(m: dict) -> dict:
     )
     gateway = detect_gateway(mx) if mx else None
 
-    return {
+    entry = {
         "ags": m["ags"],
         "name": m["name"],
         "state": m["state"],
@@ -79,6 +79,9 @@ async def scan_one(m: dict) -> dict:
         "provider": provider,
         "gateway": gateway,
     }
+    if backend:
+        entry["backend"] = backend
+    return entry
 
 
 async def main():
