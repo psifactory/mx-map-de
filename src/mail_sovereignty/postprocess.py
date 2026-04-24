@@ -412,7 +412,7 @@ async def run(data_path: Path) -> None:
         semaphore = asyncio.Semaphore(CONCURRENCY_POSTPROCESS)
         async with httpx.AsyncClient(
             headers={
-                "User-Agent": "mx-map.de/1.0 (https://github.com/sebbo/mx-map-de)"
+                "User-Agent": "mx-map.de/1.0 (https://github.com/psifactory/mx-map-de)"
             },
             follow_redirects=True,
         ) as client:
