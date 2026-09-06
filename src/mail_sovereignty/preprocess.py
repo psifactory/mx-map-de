@@ -76,7 +76,7 @@ async def fetch_wikidata() -> dict[str, dict[str, Any]]:
     print("Querying Wikidata for German municipalities...")
     headers = {
         "Accept": "application/sparql-results+json",
-        "User-Agent": "MXmap-DE/1.0 (https://github.com/sebbo/mx-map-de)",
+        "User-Agent": "MXmap-DE/1.0 (https://github.com/psifactory/mx-map-de)",
     }
     async with httpx.AsyncClient(timeout=120) as client:
         r = await client.post(
@@ -127,7 +127,7 @@ async def fetch_wikidata_counties() -> dict[str, dict[str, Any]]:
     print("Querying Wikidata for German counties...")
     headers = {
         "Accept": "application/sparql-results+json",
-        "User-Agent": "MXmap-DE/1.0 (https://github.com/sebbo/mx-map-de)",
+        "User-Agent": "MXmap-DE/1.0 (https://github.com/psifactory/mx-map-de)",
     }
     async with httpx.AsyncClient(timeout=120) as client:
         r = await client.post(
